@@ -1,6 +1,7 @@
 ##
 tmp/
 .vscode/
+build/
 *.txt
 *.png
 
