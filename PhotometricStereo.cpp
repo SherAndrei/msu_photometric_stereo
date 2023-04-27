@@ -174,10 +174,9 @@ cv::Rect getBoundingBox(cv::Mat Mask) {
 }
 
 int main(int argc, char* argv[]) {
-
   const int NUM_IMGS = 12;
-  const string CALIBRATION = "../../../dataset/chrome/chrome.";
-  const string MODEL = "../../../dataset/rock/rock.";
+  const string CALIBRATION = "./dataset/chrome/chrome.";
+  const string MODEL = "./dataset/rock/rock.";
 
   vector<Mat> calibImages;
   vector<Mat> modelImages;
