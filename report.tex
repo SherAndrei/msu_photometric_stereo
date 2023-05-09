@@ -14,6 +14,13 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
+\def\d{ \mathrm{d} }
+
+\usepackage{amsthm}
+\newtheorem{lemma}{Лемма}
+\newtheorem{definition}{Определение}
+\newtheorem*{remark}{Замечание}
+
 %Format-specific packages
 %--------------------------------------
 \usepackage[left=2cm,
@@ -25,15 +32,30 @@
 %Graphics packages
 %--------------------------------------
 \usepackage{graphicx}
+\usepackage{wrapfig}
+
 \graphicspath{ { ./tex/ } }
 
 \includeonly{
-  tex/title,
+  tex/title
+}
+
+\usepackage{tikz}
+\usetikzlibrary{
+  shapes.geometric
+  , intersections
+  % for angles
+  , angles
+  , quotes
+  , babel
+  % ------
 }
 
 \begin{document}
 
-\include{tex/title}
+\include{
+  tex/title
+}
 
 \newpage
 \tableofcontents
@@ -72,4 +94,117 @@ Photometric stereo — это метод в компьютерном зрени�
 важной технологией в области компьютерного зрения, особенно для задач
 реконструкции трехмерных объектов.
 
+\newpage
+
+\section{Радиометрия}
+\subsection{Телесный угол}
+
+Познакомимся с понятием \textit{телесного угла}, разберемся как и в чем происходит измерение этой величины. Именно с него будет начинаться наше погружение
+в Photometric stereo.
+
+\begin{wrapfigure}[14]{r}{0.4\textwidth}
+  \begin{center}
+    \begin{tikzpicture}[scale=0.9,every node/.style={scale=0.9}]
+      \draw (0,0) circle (2cm);
+      \coordinate [label=below:$O$] (O) at (0,0);
+      \draw [dashed] (0,0) -- node[above]{$R$} (-2,0);
+      \draw (-2,0) arc (180:360:2 and 0.6);
+      \draw [dashed] (2,0) arc (0:180:2 and 0.6);
+
+      \node [ellipse,
+        draw=black,
+        fill=cyan!10,
+        minimum width = 0.6cm,
+        minimum height = 0.4cm,
+        rotate=125] (e) at (0.9,0.9) {};
+      \draw [dashed] (O) -- (e.east);
+      \draw [dashed] (O) -- (e.west);
+
+      \node [ellipse,
+        draw=black,
+        fill=cyan!20,
+        minimum width = 1.8cm,
+        minimum height = 1.2cm,
+        rotate=125] (E) at (2.70,2.70) {};
+      \draw (e.east) -- (E.east);
+      \draw (e.west) -- (E.west);
+      \coordinate [label=center:$\Sigma$] (S) at (E.center);
+
+    \end{tikzpicture}
+    \caption{Телесный угол}
+  \end{center}
+\end{wrapfigure}
+
+Поставим наблюдателя в центр сферы $O$ радиуса $R$. Обозначим $\Sigma$ наблюдаемую
+из точки $O$ поверхность. Площадь сферы покрываемую объектом обозначим $S$. Тогда величиной телесного угла
+является следующее отношение:
+$$\omega=\frac{S}{R^2}$$
+Точка $O$ называется вершиной (apex) телесного угла.
+\textbf{Телесный угол} - пучок лучей из $O$ до $\Sigma$.
+Говорят, что наблюдатель стягивает (to subtend) его телесный угол в вершине.
+
+Единица измерения в системе  СИ - стерадиан (sr), равный телесному углу,
+вырезающему из сферы радиуса $R$ поверхность с площадью $R^2$.
+
+\begin{remark}
+  Площадь поверхности сферы = $4\pi R^2$, тогда полный телесный угол равен
+  $$\omega=\frac{4\pi R^2}{R^2}=4\pi$$
+\end{remark}
+
+\begin{remark}
+  Для кругового конуса с углом раствора $\theta$ телесный угол при его вершине
+  равен $$\omega=\frac{2\pi R^2(1-\cos\theta)}{R^2}=2\pi(1-\cos\theta)$$
+\end{remark}
+
+\begin{wrapfigure}[10]{r}{0.35\textwidth}
+  \begin{center}
+    \begin{tikzpicture}[scale=0.75]
+      \coordinate (O) at (0,0);
+      \node [circle,
+        name path=U,
+        draw=black,
+        minimum size=3cm] (U) at (O) {};
+      \node [circle,
+        draw=black,
+        label=left:$S_0$] (S0) at (O) {};
+
+      \coordinate (dAl) at (1,-7);
+      \coordinate (dAr) at (3,-7);
+      \coordinate (dAm) at (2,-7);
+      \coordinate (n) at (2,-6);
+      \draw (dAl) -- (dAr);
+
+      \draw [name path=O--dAl,dashed] (O) -- node [left] {$r$} (dAl);
+      \draw [name path=O--dAr,dashed] (O) -- (dAr);
+      \draw (O) -- (dAm) node [below] {$\d A$};
+
+      \begin{scope}
+        \path [name intersections={of=O--dAl and U,by=C}];
+        \path [name intersections={of=O--dAr and U,by=D}];
+        \draw [line width=1mm] (C) -- (D) node [right] {$\d A_0$};
+      \end{scope}
+
+      \draw [->, line width=0.5mm] (dAm) -- (n) node [right] {$\mathrm{n}$};
+      \pic [draw, angle radius=6mm,"$\theta$",left] {angle=n--dAm--O};
+    \end{tikzpicture}
+    \caption{Стянутый объектом $S_0$ телесный угол}
+    \label{subtended}
+  \end{center}
+\end{wrapfigure}
+
+Чаще всего бывает, что изучаемая поверхность находится под углом $\theta$
+к наблюдателю. На рис. \eqref{subtended} $\mathrm{n}$ это нормаль к
+изучаемой поверхности $\d A$, $S_0$ - центр единичной окружности.
+Расстояние между $S_0$ и $\d A$ обозначим $r$. Заметим, что угол между
+нормалью плоскости $\mathrm{n}$ и направлением взгляда наблюдателя обозначим $\theta$.
+$\d A_0$ является проекцией $\d A$ на единичную сферу, тогда телесный угол имеет величину:
+$$\d \omega = \frac{\d A\cos\theta}{r^2}$$
+
+\newpage
+
+\section{Литература}
+\begin{enumerate}
+  \item Ying Wu. "Radiometry, BRDF and Photometric Stereo". Northwestern University. Retrieved 2015-03-25.
+  \item A. V. Arecchi, T. Messadi, and R. J. Koshel, Field Guide to Illumination, SPIE Press, Bellingham, WA (2007)
+\end{enumerate}
 \end{document}
