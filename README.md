@@ -21,26 +21,32 @@ The light directions are estimated with the chrome dataset inside the image fold
 ### Dependencies
 
 1. Base
-```bash
-~$ sudo apt update
-~$ sudo apt install -y g++ wget unzip build-essential cmake mesa-common-dev mesa-utils freeglut3-dev python3-dev python3-venv git-core ninja-build sudo lib{glvnd,boost,gtk2.0}-dev pkg-config
-```
-2. OpenCV (copied from [here](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html))
-```bash
-~$ wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
-~$ unzip opencv.zip
-~$ mv opencv-4.x opencv
-~$ mkdir -p build && cd build
-~/build$ cmake -GNinja ../opencv
-~/build$ cmake --build .
-~/build$ sudo make install
-```
-3. vtk (copied from [here](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Documentation/dev/getting_started_linux.md))
-```bash
-~$ wget https://www.vtk.org/files/release/9.2/VTK-9.2.6.tar.gz
-~$ tar -xf VTK-9-2-6.tar.gz
-~$ mkdir vtk_build && cd vtk_build
-~/vtk_build$ cmake -GNinja ../VTK-9-2-6
-~/vtk_build$ cmake --build .
-~/vtk_build$ sudo cmake -DCMAKE_BUILD_TYPE=Release -P cmake_install.cmake 
-```
+    ```bash
+    ~$ sudo apt update
+    ~$ sudo apt install -y g++ wget unzip build-essential cmake mesa-common-dev mesa-utils freeglut3-dev python3-dev python3-venv git-core ninja-build sudo lib{glvnd,boost,gtk2.0}-dev pkg-config
+    ```
+1. OpenCV (copied from [here](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html))
+    ```bash
+    ~$ wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
+    ~$ unzip opencv.zip
+    ~$ mv opencv-4.x opencv
+    ~$ mkdir -p build && cd build
+    ~/build$ cmake -GNinja ../opencv
+    ~/build$ cmake --build .
+    ~/build$ sudo make install
+    ```
+1. vtk (copied from [here](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Documentation/dev/getting_started_linux.md))
+    ```bash
+    ~$ wget https://www.vtk.org/files/release/9.2/VTK-9.2.6.tar.gz
+    ~$ tar -xf VTK-9-2-6.tar.gz
+    ~$ mkdir vtk_build && cd vtk_build
+    ~/vtk_build$ cmake -GNinja ../VTK-9-2-6
+    ~/vtk_build$ cmake --build .
+    ~/vtk_build$ sudo cmake -DCMAKE_BUILD_TYPE=Release -P cmake_install.cmake 
+    ```
+
+TODO:
+- [ ] Разобрать статьи
+  - [ ] Ying Wu. ["Radiometry, BRDF and Photometric Stereo"](http://users.eecs.northwestern.edu/~yingwu/teaching/EECS432/Notes/lighting.pdf)
+  - [ ] Woodham, R.J. 1980. [Photometric method for determining surface orientation from multiple images](https://www.researchgate.net/publication/242557620_Photometric_Method_for_Determining_Surface_Orientation_from_Multiple_Images)
+  - [ ] Chaman Singh Verma and Mon-Ju Wu. ["Photometric Stereo"](https://pages.cs.wisc.edu/~csverma/CS766_09/Stereo/stereo.html)
