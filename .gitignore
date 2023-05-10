@@ -2,8 +2,10 @@
 tmp/
 .vscode/
 build/
-*.txt
 *.png
+
+*.txt
+!CMakeLists.txt
 
 # Prerequisites
 *.d
