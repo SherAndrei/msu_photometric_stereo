@@ -7,7 +7,33 @@ FIND_PACKAGE(VTK REQUIRED)
 
 #required macros and variables
 INCLUDE(${VTK_USE_FILE})
-ADD_DEFINITIONS(-std=c++17)
+
+set(CMAKE_CXX_STANDARD 17)
+
+add_compile_options(
+  -mfpmath=sse
+  -fstack-protector-all
+  -W
+  -Wall
+  -Wextra
+  -Werror
+  -Wunused
+  -Wcast-align
+  -pedantic
+  -pedantic-errors
+  -Wfloat-equal
+  -Wpointer-arith
+  -Wmissing-format-attribute
+  -Wformat=2
+  -Wwrite-strings
+  -Wcast-align
+  -Wno-long-long
+  -Wcast-qual
+  -Wpedantic
+  -Wmissing-declarations
+  -Werror=switch
+  -Wswitch
+)
 
 # add all sources automagically
 FILE(GLOB SOURCES *.cpp *.h)

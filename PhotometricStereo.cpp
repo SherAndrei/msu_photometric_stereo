@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <numeric>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -173,7 +174,7 @@ cv::Rect getBoundingBox(cv::Mat Mask) {
   return cv::boundingRect(v[0]);
 }
 
-int main(int argc, char* argv[]) {
+int main() {
   const int NUM_IMGS = 12;
   const string CALIBRATION = "./dataset/chrome/chrome.";
   const string MODEL = "./dataset/rock/rock.";
@@ -219,7 +220,8 @@ int main(int argc, char* argv[]) {
       if (p > 0) {
         n = n / p;
       }
-      if (n.at<float>(2, 0) == 0) {
+
+      if (std::abs(n.at<float>(2, 0)) < std::numeric_limits<float>::epsilon()) {
         n.at<float>(2, 0) = 1.0;
       }
       int legit = 1;
