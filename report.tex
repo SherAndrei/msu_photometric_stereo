@@ -224,31 +224,24 @@ XVI Генеральной конференцией по мерам и веса�
       };
 
       \def \R {115};
+      \tikzstyle{ellipse template}=[ellipse,draw=black,minimum width=1cm,minimum height=0.5cm,rotate=\R];
+
       \coordinate [label=left:$S_0$] (S0) at (0, 0);
 
-      \node [ellipse,
-        name path=omega,
-        draw=black,
-        minimum width = 1cm,
-        minimum height = 0.5cm,
-        scale=1,
-        rotate=\R] (omega) at (8,4) {};
+      \node [ellipse template
+        , scale=1
+        , name path=omega] (omega) at (8,4) {};
 
       \coordinate [label=center:$\omega$,scale=0.2] (omega_coord) at (omega.center);
 
       \draw [name path=S0--omega_east,dashed] (S0) -- (omega.east);
       \draw [name path=S0--omega_west,dashed] (S0) -- (omega.west);
 
-      \node [ellipse,
-        name path=e,
-        draw=black,
-        minimum width = 1cm,
-        minimum height = 0.5cm,
-        scale=1.5,
-        rotate=\R] (e) at (2.4,1.2) {};
+      \node [ellipse template
+        , scale=1.5
+        , name path=e] (e) at (2.4,1.2) {};
 
       \draw [->] (S0) -- node [left] {$r_1$} (e.north east);
-
       \connectEllipces{e}{S0}{S0};
 
       % TODO: draw ellipse
@@ -258,13 +251,9 @@ XVI Генеральной конференцией по мерам и веса�
       \draw (e_omega_east) -- (e_omega_west);
       \coordinate [label=below:$\sigma_1$] (sig1) at (e_omega_west);
 
-      \node [ellipse,
-        name path=E,
-        draw=black,
-        minimum width = 1cm,
-        minimum height = 0.5cm,
-        scale=2,
-        rotate=\R] (E) at (3.6,1.8) {};
+      \node [ellipse template
+        , scale=2
+        , name path=E] (E) at (3.6,1.8) {};
 
       \draw [->] (S0) -- node [below] {$r_2$} (E.west);
       \connectEllipces{E}{e_omega_east}{e_omega_west};
@@ -276,13 +265,9 @@ XVI Генеральной конференцией по мерам и веса�
       \draw (E_omega_east) -- (E_omega_west);
       \coordinate [label=below:$\sigma_2$] (sig2) at (E_omega_west);
 
-      \node [ellipse,
-        name path=EE,
-        draw=black,
-        minimum width = 1cm,
-        minimum height = 0.5cm,
-        scale=2.5,
-        rotate=\R] (EE) at (5.6,2.8) {};
+      \node [ellipse template,
+        , scale=2.5
+        , name path=EE] (EE) at (5.6,2.8) {};
 
       \draw [->] (S0) -- node [above] {$r_3$} (EE.west);
       \connectEllipces{EE}{E_omega_east}{E_omega_west};
