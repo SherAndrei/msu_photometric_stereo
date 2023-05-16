@@ -17,6 +17,7 @@
 \usepackage{amssymb}
 
 \def\d{ \mathrm{d} }
+\def\norm{ \mathrm{n} }
 
 \usepackage{amsthm}
 \newtheorem{lemma}{Лемма}
@@ -159,7 +160,7 @@ $$\omega=\frac{S}{R^2}$$
         \draw [line width=1mm] (C) -- (D) node [right] {$\d A_0$};
       \end{scope}
 
-      \draw [->, line width=0.5mm] (dAm) -- (n) node [right] {$\mathrm{n}$};
+      \draw [->, line width=0.5mm] (dAm) -- (n) node [right] {$\norm$};
       \pic [draw, angle radius=6mm,"$\theta$",left] {angle=n--dAm--O};
     \end{tikzpicture}
     \caption{Стянутый объектом $S_0$ телесный угол}
@@ -168,10 +169,10 @@ $$\omega=\frac{S}{R^2}$$
 \end{wrapfigure}
 
 Чаще всего бывает, что изучаемая поверхность находится под углом $\theta$
-к наблюдателю. На рис. \eqref{subtended} $\mathrm{n}$ это нормаль к
+к наблюдателю. На рис. \eqref{subtended} $\norm$ это нормаль к
 изучаемой поверхности $\d A$, $S_0$ - центр единичной окружности.
 Расстояние между $S_0$ и $\d A$ обозначим $r$. Заметим, что угол между
-нормалью плоскости $\mathrm{n}$ и направлением взгляда наблюдателя обозначим $\theta$.
+нормалью плоскости $\norm$ и направлением взгляда наблюдателя обозначим $\theta$.
 $\d A_0$ является проекцией $\d A$ на единичную сферу, тогда телесный угол имеет величину:
 $$\d \omega = \frac{\d A\cos\theta}{r^2}$$
 
@@ -214,7 +215,9 @@ XVI Генеральной конференцией по мерам и веса�
 
 \begin{figure}[h]
   \begin{center}
-    \begin{tikzpicture}
+    \begin{tikzpicture}[
+        declare function={lin(\t) = \t / 1.5;}
+      ]
       \newcommand\connectEllipces[3]{
         \path [name intersections={of=S0--omega_east and #1,by=A}];
         \path [name intersections={of=S0--omega_west and #1,by=B}];
@@ -228,18 +231,18 @@ XVI Генеральной конференцией по мерам и веса�
 
       \coordinate [label=left:$S_0$] (S0) at (0, 0);
 
-      \node [ellipse template
-        , scale=1
-        , name path=omega] (omega) at (8,4) {};
+      \path let \n1={8} in node [ellipse template
+          , scale=1
+          , name path=omega] (omega) at (\n1,{ lin(\n1) }) {};
 
       \coordinate [label=center:$\omega$,scale=0.2] (omega_coord) at (omega.center);
 
       \draw [name path=S0--omega_east,dashed] (S0) -- (omega.east);
       \draw [name path=S0--omega_west,dashed] (S0) -- (omega.west);
 
-      \node [ellipse template
-        , scale=1.5
-        , name path=e] (e) at (2.4,1.2) {};
+      \path let \n1={2.4} in node [ellipse template
+          , scale=1.5
+          , name path=e] (e) at (\n1,{ lin(\n1) }) {};
 
       \draw [->] (S0) -- node [left] {$r_1$} (e.north east);
       \connectEllipces{e}{S0}{S0};
@@ -251,11 +254,15 @@ XVI Генеральной конференцией по мерам и веса�
       \draw (e_omega_east) -- (e_omega_west);
       \coordinate [label=below:$\sigma_1$] (sig1) at (e_omega_west);
 
-      \node [ellipse template
-        , scale=2
-        , name path=E] (E) at (3.6,1.8) {};
+      \path let \n1={2.4} in node [ellipse template
+          , scale=1.5
+          , name path=e] (e) at (\n1,{ lin(\n1) }) {};
 
-      \draw [->] (S0) -- node [below] {$r_2$} (E.west);
+      \path let \n1={3.6} in node [ellipse template
+          , scale=2.5
+          , name path=E] (E) at (\n1,{ lin(\n1) }) {};
+
+      \draw [->] (S0) -- node [below] {$r_2$} (E.north west);
       \connectEllipces{E}{e_omega_east}{e_omega_west};
 
       % TODO: draw ellipse
@@ -265,11 +272,11 @@ XVI Генеральной конференцией по мерам и веса�
       \draw (E_omega_east) -- (E_omega_west);
       \coordinate [label=below:$\sigma_2$] (sig2) at (E_omega_west);
 
-      \node [ellipse template,
-        , scale=2.5
-        , name path=EE] (EE) at (5.6,2.8) {};
+      \path let \n1={5.6} in node [ellipse template
+          , scale=4
+          , name path=EE] (EE) at (\n1,{ lin(\n1) }) {};
 
-      \draw [->] (S0) -- node [above] {$r_3$} (EE.west);
+      \draw [->] (S0) -- node [below] {$r_3$} (EE.west);
       \connectEllipces{EE}{E_omega_east}{E_omega_west};
 
       % TODO: draw ellipse
