@@ -436,17 +436,139 @@ $\sigma_1$, $\sigma_2$, $\sigma_3$. За единицу времени на эт
 \end{equation}
 Из \eqref{radiance::origin} и \eqref{radiance::flux_on_receiver} следует
 \begin{equation}\label{radiance::result}
-  L = \frac{\d I}{\d\sigma_1\cos\phi_1} =\frac{r^2\d^2\Phi}{\cos\phi_2\cos\phi_1\d\sigma_2\d\sigma_1}
+  L = \frac{\d I}{\d\sigma_1\cos\phi_1}
 \end{equation}
+
+Выражение \eqref{radiance::result} определяет \textit{яркость поверхности в заданной точке
+  и в заданном направлении}. Единица яркости -- кандела на квадратный метр (кд/м$^2$).
+
 
 \newpage
 
 \section{Поверхности}
 
 \subsection{Двулучевая функция отражательной способности (BRDF)}
-\subsection{Диффузное отражение}
+
+Очевидно, что яркость точки на поверхности как-то зависит от материала поверхности,
+на которую падает свет. Иначе говоря, яркость зависит от так называемых отражательных
+способностей поверхности. На Рис. \eqref{brdf} компьютером отрисованы различные сферы.
+В данном примере и камера и источник света находятся относительно далеко от сфер.
+Причина, по которой мы видим их различными -- их материал, или различные отражательные способности.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.3]{tex/brdf.png}
+  \caption{Пример разных отражательных способностей}
+  \label{brdf}
+\end{figure}
+
+Возникает идея как-то формализировать представление отражательных способностей любого материала,
+с чем нам поможет двулучевая функция отражательной способности или ДФОС.
+
+Для определения нам важны направления: направление света, падающего на предмет, и направление
+отраженного и полученного света. Двулучевая функция, потому что речь будет идти про два луча.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{tikzpicture}
+      \def\SndrAngle {225};
+      \def\SndrColor {yellow};
+      \node [draw,
+        fill=\SndrColor,
+        rectangle,
+        minimum width=1cm,
+        minimum height=0.5cm,
+        rotate=\SndrAngle,
+      ] (SndrRect) at (-5, 4){};
+      \filldraw[fill=\SndrColor] let
+      \p1=($ (SndrRect.north west) - (SndrRect.north east) $),
+      \n2={0.3}
+      in
+      ($ (SndrRect.north east)!.5!(SndrRect.north) $) coordinate (SndrA) --
+      ($ (SndrRect.north)!.5!(SndrRect.north west) $) coordinate (SndrB) --
+      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north west) coordinate (SndrC) --
+      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north east) coordinate (SndrD) -- cycle
+      ;
+      \node[left,text width=2.5cm] at (SndrRect.south east) {Источник (Прожектор)};
+
+      \def\RcvrColor {gray};
+      \node [draw,
+        fill=\RcvrColor,
+        rectangle,
+        minimum width=1cm,
+        minimum height=0.5cm,
+        rotate=360-\SndrAngle,
+      ] (RcvrRect) at (5, 4){};
+      \filldraw[fill=\RcvrColor] let
+      \p1=($ (RcvrRect.north west) - (RcvrRect.north east) $),
+      \n2={0.3}
+      in
+      ($ (RcvrRect.north east)!.5!(RcvrRect.north) $) coordinate (RcvrA)
+      -- ($ (RcvrRect.north)!.5!(RcvrRect.north west) $) coordinate (RcvrB)
+      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north west) coordinate (RcvrC)
+      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north east) coordinate (RcvrD)
+      -- cycle
+      ;
+      \node[right,text width=2.5cm] at (RcvrRect.south west) {Получатель (Камера)};
+
+      \node [draw,
+        trapezium,
+        shade,
+        minimum width=3cm,
+        trapezium left angle=120,
+        trapezium right angle=60] (Srfc) at (0, 0){};
+
+      \draw[-Stealth, thick]
+      (Srfc.center) coordinate (beginN)
+      -- ([shift={(0,1.5)}]Srfc.center) coordinate (endN) node[above]{$\norm$};
+
+      \draw[-Stealth,color=\SndrColor,line width=0.5mm]
+      ($ (SndrC)!.5!(SndrD) $) coordinate (beginSnd)
+      --node[left,color=black]{$(\theta_i,\phi_i)$} (Srfc.center) coordinate (endSnd);
+
+      \draw[-Stealth,color=\RcvrColor,line width=0.5mm]
+      (Srfc.center) coordinate (beginRcv)
+      --node[right,color=black]{$(\theta_r,\phi_r)$} ($ (RcvrC)!.5!(RcvrD) $) coordinate (endRcv);
+
+    \end{tikzpicture}
+    \caption{Отражение поверхности}
+    \label{surface_reflection}
+  \end{center}
+\end{figure}
+
+Таким образом, чтобы представить свойства отражения любого материала,
+мы хотим иметь возможность описать его свойства как с точки зрения
+направления освещения, так и с точки зрения направления взгляда или направления отражения.
+
+Выражая направление источника в полярных координатах через углы $(\theta_i,\phi_i)$ и
+направление отраженного света через $(\theta_r,\phi_r)$, мы можем следующее
+\begin{enumerate}
+  \item Освещенность поверхности зависит от углов $(\theta_i,\phi_i)$, то есть $E:=E(\theta_i,\phi_i)$.
+  \item Яркость поверхности зависит от углов $(\theta_r,\phi_r)$, то есть $L:=L(\theta_r,\phi_r)$.
+\end{enumerate}
+
+И теперь мы можем описать отражательную способность как двулучевую функцию отражательной
+способноси:
+\begin{equation}
+  \rho(\theta_i,\phi_i,\theta_r,\phi_r)=\frac{L(\theta_r,\phi_r)}{E(\theta_i,\phi_i)}
+\end{equation}
+
+Измеряется в ср$^{-1}$, где стерадиан (ср) - единица измерения телесного угла. Перечислим некоторые свойства ДФОС:
+\begin{enumerate}
+  \item Неотрицательность: $\rho(\theta_i,\phi_i,\theta_r,\phi_r)>0$. Следует из того, что и
+        яркость, и освещенность неотрицательны, значит и их отношение.
+  \item Удовлетворяет равенству Гельмгольца: $\rho(\theta_i,\phi_i,\theta_r,\phi_r)=\rho(\theta_r,\phi_r,\theta_i,\phi_i)$.
+        Это нам говорит о том, что поменяв местами прожектор и камеру, мы получим то же самое значение ДФОС.
+\end{enumerate}
+
+Существуют множество поверхностей, которые отражают одинаковое количество света
+вне зависимости от вращения этой поверхности вокруг ее нормали. Такие
+поверхности называют \textit{изотропными}, в обратном случае \textit{анизотропными}.
+Когда говорят об изотропных поверхностях ДФОС определяют как функцию принимающую три
+аргумента вместо четырех: $\rho(\theta_i,\theta_r,\phi)$.
+
+\subsection{Диффузное отражение (Альбедо)}
 \subsection{Закон Ламберта}
-\subsection{Альбедо}
 
 \section{Photometric stereo}
 
