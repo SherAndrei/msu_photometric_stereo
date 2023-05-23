@@ -7,7 +7,7 @@
 \usepackage[english, russian]{babel}
 %for search in russian
 \usepackage{cmap}
-% for quotes
+% for markdown style quotes
 \usepackage{csquotes}
 %--------------------------------------
 
@@ -56,6 +56,7 @@
   % ------
  , external
  , arrows.meta
+ , patterns
 }
 \tikzexternalize[prefix=tex/]
 
@@ -567,7 +568,82 @@ $\sigma_1$, $\sigma_2$, $\sigma_3$. За единицу времени на эт
 Когда говорят об изотропных поверхностях ДФОС определяют как функцию принимающую три
 аргумента вместо четырех: $\rho(\theta_i,\theta_r,\phi)$.
 
-\subsection{Диффузное отражение (Альбедо)}
+\subsection{Механизмы, порождающие отражение}
+
+Давайте поговорим об основных механизмах, порождающие отражение света.
+
+\begin{figure}[h]
+  \centering
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \begin{tikzpicture}
+      \node [draw,
+        rectangle,
+        minimum width=6cm,
+        minimum height=0.5cm,
+      ] (obj) at (0, -1){};
+
+      \draw[-Stealth, thick, black] (-3,3) coordinate (src) --node[above, midway, sloped]{Источник} ($ (obj.north east)!.5!(obj.north west) $) coordinate (middle);
+      \draw[-Stealth, thick, blue] (middle) --node[above, midway, sloped]{Зеркальное отражение} (3,3) coordinate;
+    \end{tikzpicture}
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \begin{tikzpicture}
+      \node [draw,
+        rectangle,
+        pattern=bricks,
+        minimum width=6cm,
+        minimum height=1cm,
+      ] (obj) at (0, -1){};
+      \draw[-Stealth, thick, black] (-3,3) coordinate (src) --node[above, midway, sloped]{Источник} ($ (obj.north east)!.5!(obj.north west) $) coordinate (middle);
+      \node [circle,
+        inner sep=0pt,
+        outer sep=0pt,
+        minimum size=3cm] (C1) at (0,1) {};
+      \draw[-Stealth, thick, red] (middle) -- (C1.north) coordinate node[right]{Диффузное отражение};
+      \draw[-Stealth, thick, red] (middle) -- (C1.north west) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C1.north east) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C1.west) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C1.east) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C1.south west) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C1.south east) coordinate;
+      \node [circle,
+        inner sep=0pt,
+        outer sep=0pt,
+        rotate=22.5,
+        minimum size=3cm] (C2) at (0,1) {};
+      \draw[-Stealth, thick, red] (middle) -- (C2.north) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C2.north west) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C2.north east) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C2.west) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C2.east) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C2.south) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C2.south west) coordinate;
+      \draw[-Stealth, thick, red] (middle) -- (C2.south east) coordinate;
+    \end{tikzpicture}
+  \end{minipage}
+  \caption{Диффузное и зеркальное отражение}
+  \label{reflect}
+\end{figure}
+
+Рассмотрим рис. \eqref{reflect}. Различают три механизма:
+\begin{itemize}
+  \item Первый - отражательная способность поверхности. Свет падает на поверхность
+        и отражение происходит на самой плоскости. Такое отражение света называется
+        \textit{зеркальны м} отражением. Оно придает поверхностям глянцевый или блестящий
+        вид и свойственно гладким однородным материалам (зеркалам, стеклу, полированным металлам).
+  \item Второй случай возникает, когда часть света проходит сквозь поверхность
+        и проникает внутрь материала. Обычно вещества неоднородны и содержат различные
+        частицы с разными показателями преломления. В результате попадающий внутрь свет
+        преломляется и отражается несколько раз, отскакивает внутри случайным образом.
+        Это происходит на небольшой глубине под поверхностью, поэтому частицы света
+        проникают обратно и рассеиваются во многих направлениях.
+        Это явление называется \textit{диффузным}. Из-за неоднородности среды
+        объекты обладают матовостью.
+  \item При анализе яркости точки изображения надо учитывать, что это результат отражения света из окружающей среды, который имеет составляющие
+        диффузного и поверхностного отражения. Чаще всего встречается \textit{гибридное} отражение — комбинация этих двух механизмов.
+\end{itemize}
 \subsection{Закон Ламберта}
 
 \section{Photometric stereo}
