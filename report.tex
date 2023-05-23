@@ -232,11 +232,15 @@ XVI Генеральной конференцией по мерам и веса�
 
       \coordinate [label=left:$S_0$] (S0) at (0, 0);
 
+      \def \OmegaScale {1};
       \path let \n1={8} in node [ellipse template
-          , scale=1
-          , name path=omega] (omega) at (\n1,{ lin(\n1) }) {};
-
-      \coordinate [label=center:$\omega$,scale=0.2] (omega_coord) at (omega.center);
+          , fill=gray
+          , opacity=0.3
+          , scale=\OmegaScale
+          , name path=omega
+        ] (omega) at (\n1,{ lin(\n1) }){};
+      \node at (omega.center) {$\omega$};
+      \coordinate (S0_omega_west_vector) at ($ (omega.west) - (S0) $);
 
       \draw [name path=S0--omega_east,dashed] (S0) -- (omega.east);
       \draw [name path=S0--omega_west,dashed] (S0) -- (omega.west);
@@ -248,16 +252,19 @@ XVI Генеральной конференцией по мерам и веса�
       \draw [->] (S0) -- node [left] {$r_1$} (e.north east);
       \connectEllipces{e}{S0}{S0};
 
-      % TODO: draw ellipse
       \path [name path=e_vert] (e.west) -- (e.east);
       \path [name intersections={of=S0--omega_east and e_vert,by=e_omega_east}];
       \path [name intersections={of=S0--omega_west and e_vert,by=e_omega_west}];
-      \draw (e_omega_east) -- (e_omega_west);
-      \coordinate [label=below:$\sigma_1$] (sig1) at (e_omega_west);
-
-      \path let \n1={2.4} in node [ellipse template
-          , scale=1.5
-          , name path=e] (e) at (\n1,{ lin(\n1) }) {};
+      \path let
+      \n1 = {2.4},
+      \p2 = (S0_omega_west_vector),
+      \p3 = ($ (e_omega_west) - (S0) $),
+      \n4 = { veclen(\x3,\y3) / veclen(\x2,\y2) }
+      in node [ellipse template
+          , scale=\OmegaScale * \n4
+          , name path=e_omega
+        ] (e_omega) at (\n1,{ lin(\n1) }) {};
+      \node [below] at (e_omega_west) {$\sigma_1$};
 
       \path let \n1={3.6} in node [ellipse template
           , scale=2.5
@@ -266,12 +273,19 @@ XVI Генеральной конференцией по мерам и веса�
       \draw [->] (S0) -- node [below] {$r_2$} (E.north west);
       \connectEllipces{E}{e_omega_east}{e_omega_west};
 
-      % TODO: draw ellipse
       \path [name path=E_vert] (E.west) -- (E.east);
       \path [name intersections={of=S0--omega_east and E_vert,by=E_omega_east}];
       \path [name intersections={of=S0--omega_west and E_vert,by=E_omega_west}];
-      \draw (E_omega_east) -- (E_omega_west);
-      \coordinate [label=below:$\sigma_2$] (sig2) at (E_omega_west);
+      \path let
+      \n1 = {3.6},
+      \p2 = (S0_omega_west_vector),
+      \p3 = ($ (E_omega_west) - (S0) $),
+      \n4 = { veclen(\x3,\y3) / veclen(\x2,\y2) }
+      in node [ellipse template
+          , scale=\OmegaScale * \n4
+          , name path=E_omega
+        ] (E_omega) at (\n1,{ lin(\n1) }) {};
+      \node [below] at (E_omega_west) {$\sigma_2$};
 
       \path let \n1={5.6} in node [ellipse template
           , scale=4
@@ -280,12 +294,19 @@ XVI Генеральной конференцией по мерам и веса�
       \draw [->] (S0) -- node [below] {$r_3$} (EE.west);
       \connectEllipces{EE}{E_omega_east}{E_omega_west};
 
-      % TODO: draw ellipse
       \path [name path=EE_vert] (EE.west) -- (EE.east);
       \path [name intersections={of=S0--omega_east and EE_vert,by=EE_omega_east}];
       \path [name intersections={of=S0--omega_west and EE_vert,by=EE_omega_west}];
-      \draw (EE_omega_east) -- (EE_omega_west);
-      \coordinate [label=below:$\sigma_3$] (sig3) at (EE_omega_west);
+      \path let
+      \n1 = {5.6},
+      \p2 = (S0_omega_west_vector),
+      \p3 = ($ (EE_omega_west) - (S0) $),
+      \n4 = { veclen(\x3,\y3) / veclen(\x2,\y2) }
+      in node [ellipse template
+          , scale=\OmegaScale * \n4
+          , name path=EE_omega
+        ] (EE_omega) at (\n1,{ lin(\n1) }) {};
+      \node [below] at (EE_omega_west) {$\sigma_3$};
 
       \draw
       (EE_omega_east) -- (omega.east)
