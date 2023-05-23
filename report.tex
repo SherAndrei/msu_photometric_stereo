@@ -665,7 +665,87 @@ $\sigma_1$, $\sigma_2$, $\sigma_3$. За единицу времени на эт
   \item При анализе яркости точки изображения надо учитывать, что это результат отражения света из окружающей среды, который имеет составляющие
         диффузного и поверхностного отражения. Чаще всего встречается \textit{гибридное} отражение — комбинация этих двух механизмов.
 \end{itemize}
-\subsection{Закон Ламберта}
+
+\subsection{Модели отражения}
+
+Рассмотрим широко используемые модели отражения.
+
+\subsubsection{Светорассеивающая поверхность, закон Ламберта}
+
+Большинство предметов, с которыми нам чаще всего приходится работать в жизни
+(бумага, песок, камень, мел), рассеивают падающий на них свет таким образом,
+что их яркости в разных направлениях оказываются примерно одинаковыми.
+
+В 1760 году немецкий ученый Ламберт сформулировал закон, согласно которому
+\textit{яркости светорассеивающей поверхности во всех направлениях одинаковы}.
+Хоть и установлено, что не существует предмета, который бы строго удовлетворял
+закону Ламберта, этот закон часто используют в компьютерном зрении и
+компьютерной графике, потому что несмотря на ее простоту она
+позволяет достаточно точно описывать многие поверхности.
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}
+    \draw [name path=arc] (0,0) arc (0:180:4cm and 4cm) -- cycle;
+    \node [
+      rectangle,
+      name path=rec,
+      minimum width=1cm,
+      minimum height=0.2cm,
+      pattern=north east lines] (rec) at (-4,-0.1){};
+    \node [below] at (rec.south){$\sigma$};
+    \path [name path=ll-rec] (-9,3.75) coordinate (ll) -- (rec.north) coordinate (m);
+    \path [name path=lu-rec] (-8,4.25) coordinate (lu) -- (m);
+    \path [name path=rl-rec] ( 1,3.75) coordinate (rl) -- (m);
+    \path [name path=ru-rec] ( 0,4.25) coordinate (ru) -- (m);
+    \path [name intersections={of=ll-rec and arc,by=A}];
+    \path [name intersections={of=lu-rec and arc,by=B}];
+    \path [name intersections={of=rl-rec and arc,by=C}];
+    \path [name intersections={of=ru-rec and arc,by=D}];
+    \fill [pink, opacity=0.3] (A) -- (C) -- (D) -- (B);
+
+    \draw (A) -- (m) -- (C);
+    \draw (B) -- (m) -- (D);
+    \draw [dashed] (A) node [left] {$A$} -- (C) node [right] {$C$};
+    \draw [dashed] (B) node [left] {$B$} -- (D) node [right] {$D$};
+    \draw [->] let \p1 = (m) in (m) -- (\x1,4.2) coordinate (N) node[above]{$\norm$};
+    \pic [<->, draw, angle radius=15mm,"$\phi$",angle eccentricity=1.2] {angle=D--m--N};
+    \pic [<->, draw, angle radius=15mm,"$\d\phi$",angle eccentricity=1.2] {angle=C--m--D};
+  \end{tikzpicture}
+  \caption{Расчет светового потока, излучаемого поверхностью с постоянной яркостью}
+  \label{lambert::pic}
+\end{figure}
+
+На Рис. \eqref{lambert::pic} рассматривается площадка площади $\sigma$,
+яркость $L$ которой одинакова во всех направлениях.
+Сила света в направлении к точке $D$: $I=L\sigma\cos\phi$.
+Рассмотрим телесный угол $\d\omega$, заключенный между двумя конусами,
+полученными вращениями прямых проведенных от середины
+площадки до точек $C$ и $D$ вокруг нормали $\norm$. Посчитаем его значение:
+$$\d\omega=2\pi(\cos\phi-\cos\phi\cos\d\phi+\sin\phi\sin\d\phi)\approx 2\pi\sin\phi\d\phi$$
+Так как сила света внутри этого телесного угла постоянна, то световой поток, получаемый из площадки:
+$$\d\Phi=I\d\omega=2\pi L\sigma\cos\phi\sin\phi\d\phi$$
+Тогда чтобы получить световой поток, излучаемой площадкой, для всей полусферы:
+\begin{equation}\label{lambert::eq}
+  \Phi=2\pi L\sigma\int_0^{\frac{\pi}{2}} \cos\phi\sin\phi\d\phi=\pi L\sigma\sin^2\phi\vert_0^\frac{\pi}{2}=\pi L\sigma
+\end{equation}
+Если взять в качестве площадки объект, который отражает весь падающий на него поток
+и рассеивает его так, что яркость во все стороны оказывается одинаковой (удовлетворяет свойствам
+\textit{идеального рассеивателя}), то выражение \eqref{lambert::eq} можно
+переписать следующим образом:
+$$\frac{1}{\pi}=\frac{L\sigma}{\Phi}=\frac{L}{E}=\rho(\theta_i,\theta_r,\phi)$$
+Получается, что для светорассеивающей поверхности, удовлетворяющей закону Ламберта, ДФОС
+является константой.
+
+Поверхность любого тела не обладает свойствами идеального рассеивателя,
+поэтому для того чтобы численно характеризовать изменение яркости
+в разных направлениях используют \textit{коэффициент яркости} или \textit{альбедо}.
+Принято обозначать греческой буквой $\beta$, $0\leq\beta\leq1$.
+Тогда выражение ДФОС по фиксированному направлению для любого тела имеет вид:
+\begin{equation}
+  \rho(\theta_i,\phi_i,\theta_r,\phi_r)=\frac{\beta}{\pi}
+\end{equation}
+
 
 \section{Photometric stereo}
 
