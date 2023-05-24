@@ -746,6 +746,97 @@ $$\frac{1}{\pi}=\frac{L\sigma}{\Phi}=\frac{L}{E}=\rho(\theta_i,\theta_r,\phi)$$
   \rho(\theta_i,\phi_i,\theta_r,\phi_r)=\frac{\beta}{\pi}
 \end{equation}
 
+\subsubsection{Зеркальная поверхность}
+
+Рассмотрим противоположную модель - модель для идеально зеркальной поверхности.
+Все отражение происходит на поверхности, диффузное отражение отсутствует.
+В этом случае вся энергия падающего света отражается в одном направлении.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{tikzpicture}
+      \def\SndrAngle {225};
+      \def\SndrColor {yellow};
+      \node [draw,
+        fill=\SndrColor,
+        rectangle,
+        minimum width=1cm,
+        minimum height=0.5cm,
+        rotate=\SndrAngle,
+      ] (SndrRect) at (-5, 4){};
+      \filldraw[fill=\SndrColor] let
+      \p1=($ (SndrRect.north west) - (SndrRect.north east) $),
+      \n2={0.3}
+      in
+      ($ (SndrRect.north east)!.5!(SndrRect.north) $) coordinate (SndrA) --
+      ($ (SndrRect.north)!.5!(SndrRect.north west) $) coordinate (SndrB) --
+      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north west) coordinate (SndrC) --
+      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north east) coordinate (SndrD) -- cycle
+      ;
+
+      \def\RcvrColor {gray};
+      \node [draw,
+        fill=\RcvrColor,
+        rectangle,
+        minimum width=1cm,
+        minimum height=0.5cm,
+        rotate=120,
+      ] (RcvrRect) at (4.5, 2){};
+      \filldraw[fill=\RcvrColor] let
+      \p1=($ (RcvrRect.north west) - (RcvrRect.north east) $),
+      \n2={0.3}
+      in
+      ($ (RcvrRect.north east)!.5!(RcvrRect.north) $) coordinate (RcvrA)
+      -- ($ (RcvrRect.north)!.5!(RcvrRect.north west) $) coordinate (RcvrB)
+      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north west) coordinate (RcvrC)
+      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north east) coordinate (RcvrD)
+      -- cycle
+      ;
+
+      \node [draw,
+        trapezium,
+        shade,
+        minimum width=3cm,
+        trapezium left angle=120,
+        trapezium right angle=60] (Srfc) at (0, 0){};
+
+      \draw[-Stealth, thick]
+      (Srfc.center) coordinate (beginN)
+      -- ([shift={(0,1.5)}]Srfc.center) coordinate (endN) node[above]{$\norm$};
+
+      \draw[-Stealth,color=\SndrColor,line width=0.5mm]
+      ($ (SndrC)!.5!(SndrD) $) coordinate (beginSnd)
+      --node[left,color=black]{$(\theta_i,\phi_i)$} (Srfc.center) coordinate (endSnd);
+
+      \draw[-Stealth, dashed, color=blue, line width=0.5mm]
+      let \p1=(beginSnd) in
+      (Srfc.center) --node[above, midway, sloped]{Зеркальное отражение} (-\x1,\y1);
+
+      \draw[-Stealth,color=\RcvrColor,line width=0.5mm]
+      (Srfc.center) coordinate (beginRcv)
+      --node[right,color=black]{$(\theta_r,\phi_r)$} ($ (RcvrC)!.5!(RcvrD) $) coordinate (endRcv);
+
+    \end{tikzpicture}
+    \caption{Отражение зеркальной поверхности}
+    \label{specular_surface}
+  \end{center}
+\end{figure}
+
+ДФОС в случае идеального зеркала выглядит следующим образом:
+
+\begin{equation}
+  \rho(\theta_i,\phi_i,\theta_r,\phi_r)=\frac{\delta(\theta_i-\theta_r)\delta(\phi_i+\pi-\phi_r)}{\cos\theta_i\sin\theta_i}
+\end{equation}
+
+где $\delta(x)=\begin{cases}
+    1, & x=0    \\
+    0, & x\neq0
+  \end{cases}$, то есть это обозначает, что наблюдатель видит свет только когда вектор наблюдения совпадает с вектором отражения.
+
+В знаменателе произведение косинуса и синуса, коэффициент пропорциональности, обеспечивающий выполнение закона сохранения энергии: весь свет, отражаемый сферой независимо от направления, равен свету, падающему на поверхность..
+
+
+
 
 \section{Photometric stereo}
 
