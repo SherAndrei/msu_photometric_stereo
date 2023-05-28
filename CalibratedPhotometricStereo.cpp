@@ -177,7 +177,7 @@ cv::Rect getBoundingBox(cv::Mat Mask) {
 int main() {
   const int NUM_IMGS = 12;
   const string CALIBRATION = "./dataset/chrome/chrome.";
-  const string MODEL = "./dataset/rock/rock.";
+  const string MODEL = "./dataset/gray/gray.";
 
   vector<Mat> calibImages;
   vector<Mat> modelImages;
