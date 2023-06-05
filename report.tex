@@ -62,19 +62,43 @@
 }
 \tikzexternalize[prefix=tex/]
 
-\tikzset{lighter/.style={{decorate,decoration={expanding waves,angle=90,segment length=4pt}}},
-         relay/.pic={
-        code={\tikzset{scale=5/10}
-            \draw[semithick] (0,0) -- (1,4);% left line
-            \draw[semithick] (3,0) -- (2,4);% right line
-            \draw[semithick] (0,0) arc (180:0:1.5 and -0.5) node[above, midway]{#1};
-            \node[inner sep=4pt] (circ) at (1.5,5.5) {};
-            \draw[semithick] (1.5,5.5) circle(8pt);
-            \draw[semithick] (1.5,5.5cm-8pt) -- (1.5,4);
-            \draw[semithick] (1.5,4) ellipse (0.5 and 0.166);
-            \draw[semithick,radiation,decoration={angle=45}] (1.5cm+8pt,5.5) -- +(0:2);
-            \draw[semithick,radiation,decoration={angle=45}] (1.5cm-8pt,5.5) -- +(180:2);
-  }}
+\tikzset{
+  lighter/.pic={
+    code={
+      \node[
+        draw=black
+        , fill=yellow
+        , rectangle
+        , minimum width=1cm
+        , minimum height=0.3cm
+      ] (-body) at (0,0) {};
+
+      \filldraw [fill=yellow]
+      (-body.north east)
+      -- ([shift={(0.3,0.2)}]-body.north east) coordinate (headUpper)
+      -- ([shift={(0.3,-0.2)}]-body.south east) coordinate (headLower)
+      -- (-body.south east);
+      \path ($ (headUpper)!.5!(headLower) $) coordinate (-head);
+  }},
+  camera/.pic={
+    code={
+      \node[
+        draw=black
+        , fill=gray
+        , rectangle
+        , minimum width=1cm
+        , minimum height=0.2cm
+      ] (-body) at (0,0) {};
+
+      \filldraw [fill=gray]
+      let \n1={0.15} in
+      ($ (-body.north east)!.5!(-body.north) $)
+      -- ([shift={(0,\n1)}]-body.north east) coordinate (headUpper)
+      -- ([shift={(0,\n1)}]-body.north west) coordinate (headLower)
+      -- ($ (-body.north)!.5!(-body.north west) $);
+      \path ($ (headUpper)!.5!(headLower) $) coordinate (-head);
+    }
+  }
 }
 
 \begin{document}

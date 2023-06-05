@@ -24,45 +24,13 @@
 \begin{figure}[h]
   \begin{center}
     \begin{tikzpicture}
-      \def\SndrAngle {225};
       \def\SndrColor {yellow};
-      \node [draw,
-        fill=\SndrColor,
-        rectangle,
-        minimum width=1cm,
-        minimum height=0.5cm,
-        rotate=\SndrAngle,
-      ] (SndrRect) at (-5, 4){};
-      \filldraw[fill=\SndrColor] let
-      \p1=($ (SndrRect.north west) - (SndrRect.north east) $),
-      \n2={0.3}
-      in
-      ($ (SndrRect.north east)!.5!(SndrRect.north) $) coordinate (SndrA) --
-      ($ (SndrRect.north)!.5!(SndrRect.north west) $) coordinate (SndrB) --
-      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north west) coordinate (SndrC) --
-      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north east) coordinate (SndrD) -- cycle
-      ;
-      \node[left,text width=2.5cm] at (SndrRect.south east) {Источник (Прожектор)};
+      \path (-5,4) pic [rotate=320,transform shape] (Sndr) {lighter};
+      \node[left,text width=2.5cm] at (Sndr-body.south east) {Источник (Прожектор)};
 
       \def\RcvrColor {gray};
-      \node [draw,
-        fill=\RcvrColor,
-        rectangle,
-        minimum width=1cm,
-        minimum height=0.5cm,
-        rotate=360-\SndrAngle,
-      ] (RcvrRect) at (5, 4){};
-      \filldraw[fill=\RcvrColor] let
-      \p1=($ (RcvrRect.north west) - (RcvrRect.north east) $),
-      \n2={0.3}
-      in
-      ($ (RcvrRect.north east)!.5!(RcvrRect.north) $) coordinate (RcvrA)
-      -- ($ (RcvrRect.north)!.5!(RcvrRect.north west) $) coordinate (RcvrB)
-      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north west) coordinate (RcvrC)
-      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north east) coordinate (RcvrD)
-      -- cycle
-      ;
-      \node[right,text width=2.5cm] at (RcvrRect.south west) {Получатель (Камера)};
+      \path (5,4) pic [rotate=130,transform shape] (Rcvr) {camera};
+      \node[right,text width=2.5cm] at (Rcvr-body.south west) {Получатель (Камера)};
 
       \node [draw,
         trapezium,
@@ -76,12 +44,12 @@
       -- ([shift={(0,1.5)}]Srfc.center) coordinate (endN) node[above]{$\norm$};
 
       \draw[-Stealth,color=\SndrColor,line width=0.5mm]
-      ($ (SndrC)!.5!(SndrD) $) coordinate (beginSnd)
+      (Sndr-head)
       --node[left,color=black]{$(\theta_i,\phi_i)$} (Srfc.center) coordinate (endSnd);
 
       \draw[-Stealth,color=\RcvrColor,line width=0.5mm]
       (Srfc.center) coordinate (beginRcv)
-      --node[right,color=black]{$(\theta_r,\phi_r)$} ($ (RcvrC)!.5!(RcvrD) $) coordinate (endRcv);
+      --node[right,color=black]{$(\theta_r,\phi_r)$} (Rcvr-head);
 
     \end{tikzpicture}
     \caption{Отражение поверхности}
@@ -286,43 +254,11 @@ $$\frac{1}{\pi}=\frac{L\sigma}{\Phi}=\frac{L}{E}=\rho(\theta_i,\theta_r,\phi)$$
 \begin{figure}[h]
   \begin{center}
     \begin{tikzpicture}
-      \def\SndrAngle {225};
+      \def\SndrAngle {320};
       \def\SndrColor {yellow};
-      \node [draw,
-        fill=\SndrColor,
-        rectangle,
-        minimum width=1cm,
-        minimum height=0.5cm,
-        rotate=\SndrAngle,
-      ] (SndrRect) at (-5, 4){};
-      \filldraw[fill=\SndrColor] let
-      \p1=($ (SndrRect.north west) - (SndrRect.north east) $),
-      \n2={0.3}
-      in
-      ($ (SndrRect.north east)!.5!(SndrRect.north) $) coordinate (SndrA) --
-      ($ (SndrRect.north)!.5!(SndrRect.north west) $) coordinate (SndrB) --
-      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north west) coordinate (SndrC) --
-      ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north east) coordinate (SndrD) -- cycle
-      ;
-
       \def\RcvrColor {gray};
-      \node [draw,
-        fill=\RcvrColor,
-        rectangle,
-        minimum width=1cm,
-        minimum height=0.5cm,
-        rotate=120,
-      ] (RcvrRect) at (4.5, 2){};
-      \filldraw[fill=\RcvrColor] let
-      \p1=($ (RcvrRect.north west) - (RcvrRect.north east) $),
-      \n2={0.3}
-      in
-      ($ (RcvrRect.north east)!.5!(RcvrRect.north) $) coordinate (RcvrA)
-      -- ($ (RcvrRect.north)!.5!(RcvrRect.north west) $) coordinate (RcvrB)
-      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north west) coordinate (RcvrC)
-      -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north east) coordinate (RcvrD)
-      -- cycle
-      ;
+      \path (-5,4) pic [rotate=\SndrAngle,transform shape] (Sndr) {lighter};
+      \path (4.5, 2) pic [rotate=120,transform shape] (Rcvr) {camera};
 
       \node [draw,
         trapezium,
@@ -336,16 +272,16 @@ $$\frac{1}{\pi}=\frac{L\sigma}{\Phi}=\frac{L}{E}=\rho(\theta_i,\theta_r,\phi)$$
       -- ([shift={(0,1.5)}]Srfc.center) coordinate (endN) node[above]{$\norm$};
 
       \draw[-Stealth,color=\SndrColor,line width=0.5mm]
-      ($ (SndrC)!.5!(SndrD) $) coordinate (beginSnd)
+      (Sndr-head)
       --node[left,color=black]{$(\theta_i,\phi_i)$} (Srfc.center) coordinate (endSnd);
 
       \draw[-Stealth, dashed, color=blue, line width=0.5mm]
-      let \p1=(beginSnd) in
+      let \p1=(Sndr-head) in
       (Srfc.center) --node[above, midway, sloped]{Зеркальное отражение} (-\x1,\y1);
 
       \draw[-Stealth,color=\RcvrColor,line width=0.5mm]
       (Srfc.center) coordinate (beginRcv)
-      --node[right,color=black]{$(\theta_r,\phi_r)$} ($ (RcvrC)!.5!(RcvrD) $) coordinate (endRcv);
+      --node[right,color=black]{$(\theta_r,\phi_r)$} (Rcvr-head);
 
     \end{tikzpicture}
     \caption{Отражение зеркальной поверхности}
