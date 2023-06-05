@@ -1,0 +1,390 @@
+\section{Радиометрия}
+\subsection{Телесный угол}
+
+Познакомимся с понятием \textit{телесного угла}, разберемся как и в чем происходит измерение этой величины. Именно с него будет начинаться наше погружение
+в Photometric stereo.
+
+\begin{wrapfigure}[14]{r}{0.4\textwidth}
+  \begin{center}
+    \begin{tikzpicture}[scale=0.9,every node/.style={scale=0.9}]
+      \draw (0,0) circle (2cm);
+      \coordinate [label=below:$O$] (O) at (0,0);
+      \draw [dashed] (0,0) -- node[above]{$R$} (-2,0);
+      \draw (-2,0) arc (180:360:2 and 0.6);
+      \draw [dashed] (2,0) arc (0:180:2 and 0.6);
+
+      \node [ellipse,
+        draw=black,
+        fill=cyan!10,
+        minimum width = 0.6cm,
+        minimum height = 0.4cm,
+        rotate=125] (e) at (0.9,0.9) {};
+      \draw [dashed] (O) -- (e.east);
+      \draw [dashed] (O) -- (e.west);
+
+      \node [ellipse,
+        draw=black,
+        fill=cyan!20,
+        minimum width = 1.8cm,
+        minimum height = 1.2cm,
+        rotate=125] (E) at (2.70,2.70) {};
+      \draw (e.east) -- (E.east);
+      \draw (e.west) -- (E.west);
+      \coordinate [label=center:$\Sigma$] (S) at (E.center);
+
+    \end{tikzpicture}
+    \caption{Телесный угол}
+  \end{center}
+\end{wrapfigure}
+
+Поставим наблюдателя в центр сферы $O$ радиуса $R$. Обозначим $\Sigma$ наблюдаемую
+из точки $O$ поверхность. Площадь сферы покрываемую объектом обозначим $S$. Тогда величиной телесного угла
+является следующее отношение:
+$$\omega=\frac{S}{R^2}$$
+Точка $O$ называется вершиной (apex) телесного угла.
+\textbf{Телесный угол} - пучок лучей из $O$ до $\Sigma$.
+Говорят, что наблюдатель \textit{стягивает} его телесный угол в вершине.
+
+Единица измерения в системе  СИ - стерадиан (ср, sr), равный телесному углу,
+вырезающему из сферы радиуса $R$ поверхность с площадью $R^2$.
+
+\begin{remark}
+  Площадь поверхности сферы = $4\pi R^2$, тогда полный телесный угол равен
+  $$\omega=\frac{4\pi R^2}{R^2}=4\pi$$
+\end{remark}
+
+\begin{remark}
+  Для кругового конуса с углом раствора $\theta$ телесный угол при его вершине
+  равен $$\omega=\frac{2\pi R^2(1-\cos\theta)}{R^2}=2\pi(1-\cos\theta)$$
+\end{remark}
+
+\begin{wrapfigure}[10]{r}{0.35\textwidth}
+  \begin{center}
+    \begin{tikzpicture}[scale=0.75]
+      \coordinate (O) at (0,0);
+      \node [circle,
+        name path=U,
+        draw=black,
+        minimum size=3cm] (U) at (O) {};
+      \node [circle,
+        draw=black,
+        label=left:$S_0$] (S0) at (O) {};
+
+      \coordinate (dAl) at (1,-7);
+      \coordinate (dAr) at (3,-7);
+      \coordinate (dAm) at ($(dAl)!0.5!(dAr)$);
+      \coordinate (n) at (2,-6);
+      \draw (dAl) -- (dAr);
+
+      \draw [name path=O--dAl,dashed] (O) -- node [left] {$r$} (dAl);
+      \draw [name path=O--dAr,dashed] (O) -- (dAr);
+      \draw (O) -- (dAm) node [below] {$\d A$};
+
+      \begin{scope}
+        \path [name intersections={of=O--dAl and U,by=C}];
+        \path [name intersections={of=O--dAr and U,by=D}];
+        \draw [line width=1mm] (C) -- (D) node [right] {$\d A_0$};
+      \end{scope}
+
+      \draw [->, line width=0.5mm] (dAm) -- (n) node [right] {$\norm$};
+      \pic [draw, angle radius=6mm,"$\theta$",left] {angle=n--dAm--O};
+    \end{tikzpicture}
+    \caption{Стянутый объектом $S_0$ телесный угол}
+    \label{subtended}
+  \end{center}
+\end{wrapfigure}
+
+Чаще всего бывает, что изучаемая поверхность находится под углом $\theta$
+к наблюдателю. На рис. \eqref{subtended} $\norm$ это нормаль к
+изучаемой поверхности $\d A$, $S_0$ - центр единичной окружности.
+Расстояние между $S_0$ и $\d A$ обозначим $r$. Заметим, что угол между
+нормалью плоскости $\norm$ и направлением взгляда наблюдателя обозначим $\theta$.
+$\d A_0$ является проекцией $\d A$ на единичную сферу, тогда телесный угол имеет величину:
+$$\d \omega = \frac{\d A\cos\theta}{r^2}$$
+
+\newpage
+
+\subsection{Сила света (Intensity)}
+
+Простыми словами фотометрия - наука об измерении света с точки
+зрения его яркости, воспринимаемой человеческим глазом.
+Сразу можно задать вопрос: как и в чем измеряется
+свет? Попытаемся формализировать ответы на эти вопросы.
+
+Современное определение единицы силы света было зафиксировано в 1979 г.
+XVI Генеральной конференцией по мерам и весам. Международной системе единиц (СИ)
+имеет следующее описание:
+
+\begin{displayquote}
+  Сила света в заданном направлении источника, испускающего
+  монохроматическое излучение частотой 540$\cdot$1012 Гц, энергетическая сила света
+  которого в этом направлении составляет 1/683 Вт/ср.
+\end{displayquote}
+
+Единица силы света имеет общеприниятое название -- кандела (кд, cd).
+Сила света имеет обозначение $I$.
+
+Для силы света оказался верен закон обратных квадратов: значение силы света в
+данной точке пространства обратно пропорицонально квадрату расстояния от источника света.
+То есть имея два источника света с соотвествующими силами $I_1$ и $I_2$, расположенные
+соответственно на расстояних $r_1$ и $r_2$ верно следующее равенство:
+
+\begin{equation} \label{inverse_law}
+  \frac{I_1}{I_2} = \frac{r_2^2}{r_1^2}
+\end{equation}
+
+\subsection{Поток (Flux)}
+
+Рассмотрим некоторый источник света $S_0$ в некотором пространстве.
+Излучаемый свет можно представить как совокупность телесных углов $\omega$ с вершиной
+в источнике $S_0$. Пусть источник света имеет силу $I$.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{tikzpicture}[
+        declare function={lin(\t) = \t / 1.5;}
+      ]
+      \newcommand\connectEllipces[3]{
+        \path [name intersections={of=S0--omega_east and #1,by=A}];
+        \path [name intersections={of=S0--omega_west and #1,by=B}];
+        \draw
+        (#2) -- (A)
+        (#3) -- (B);
+      };
+
+      \def \R {115};
+      \tikzstyle{ellipse template}=[ellipse,draw=black,minimum width=1cm,minimum height=0.5cm,rotate=\R];
+
+      \coordinate [label=left:$S_0$] (S0) at (0, 0);
+
+      \def \OmegaScale {1};
+      \path let \n1={8} in node [ellipse template
+          , fill=gray
+          , opacity=0.3
+          , scale=\OmegaScale
+          , name path=omega
+        ] (omega) at (\n1,{ lin(\n1) }){};
+      \node at (omega.center) {$\omega$};
+      \coordinate (S0_omega_west_vector) at ($ (omega.west) - (S0) $);
+
+      \draw [name path=S0--omega_east,dashed] (S0) -- (omega.east);
+      \draw [name path=S0--omega_west,dashed] (S0) -- (omega.west);
+
+      \path let \n1={2.4} in node [ellipse template
+          , scale=1.5
+          , name path=e] (e) at (\n1,{ lin(\n1) }) {};
+
+      \draw [->] (S0) -- node [left] {$r_1$} (e.north east);
+      \connectEllipces{e}{S0}{S0};
+
+      \path [name path=e_vert] (e.west) -- (e.east);
+      \path [name intersections={of=S0--omega_east and e_vert,by=e_omega_east}];
+      \path [name intersections={of=S0--omega_west and e_vert,by=e_omega_west}];
+      \path let
+      \n1 = {2.4},
+      \p2 = (S0_omega_west_vector),
+      \p3 = ($ (e_omega_west) - (S0) $),
+      \n4 = { veclen(\x3,\y3) / veclen(\x2,\y2) }
+      in node [ellipse template
+          , scale=\OmegaScale * \n4
+          , name path=e_omega
+        ] (e_omega) at (\n1,{ lin(\n1) }) {};
+      \node [below] at (e_omega_west) {$\sigma_1$};
+
+      \path let \n1={3.6} in node [ellipse template
+          , scale=2.5
+          , name path=E] (E) at (\n1,{ lin(\n1) }) {};
+
+      \draw [->] (S0) -- node [below] {$r_2$} (E.north west);
+      \connectEllipces{E}{e_omega_east}{e_omega_west};
+
+      \path [name path=E_vert] (E.west) -- (E.east);
+      \path [name intersections={of=S0--omega_east and E_vert,by=E_omega_east}];
+      \path [name intersections={of=S0--omega_west and E_vert,by=E_omega_west}];
+      \path let
+      \n1 = {3.6},
+      \p2 = (S0_omega_west_vector),
+      \p3 = ($ (E_omega_west) - (S0) $),
+      \n4 = { veclen(\x3,\y3) / veclen(\x2,\y2) }
+      in node [ellipse template
+          , scale=\OmegaScale * \n4
+          , name path=E_omega
+        ] (E_omega) at (\n1,{ lin(\n1) }) {};
+      \node [below] at (E_omega_west) {$\sigma_2$};
+
+      \path let \n1={5.6} in node [ellipse template
+          , scale=4
+          , name path=EE] (EE) at (\n1,{ lin(\n1) }) {};
+
+      \draw [->] (S0) -- node [below] {$r_3$} (EE.west);
+      \connectEllipces{EE}{E_omega_east}{E_omega_west};
+
+      \path [name path=EE_vert] (EE.west) -- (EE.east);
+      \path [name intersections={of=S0--omega_east and EE_vert,by=EE_omega_east}];
+      \path [name intersections={of=S0--omega_west and EE_vert,by=EE_omega_west}];
+      \path let
+      \n1 = {5.6},
+      \p2 = (S0_omega_west_vector),
+      \p3 = ($ (EE_omega_west) - (S0) $),
+      \n4 = { veclen(\x3,\y3) / veclen(\x2,\y2) }
+      in node [ellipse template
+          , scale=\OmegaScale * \n4
+          , name path=EE_omega
+        ] (EE_omega) at (\n1,{ lin(\n1) }) {};
+      \node [below] at (EE_omega_west) {$\sigma_3$};
+
+      \draw
+      (EE_omega_east) -- (omega.east)
+      (EE_omega_west) -- (omega.west);
+
+    \end{tikzpicture}
+    \caption{Световой поток источника $S_0$ внутри угла $\omega$}
+  \end{center}
+\end{figure}
+
+Произвольными радиусами $r_1$, $r_2$, $r_3$ построим сферы с центром в вершине
+телесного угла $S_0$ и обозначим выделенные телесным углом площади на сферах соответсвенно
+$\sigma_1$, $\sigma_2$, $\sigma_3$. За единицу времени на эти площади упадет одна и та
+же энергия: $\frac{I}{r_1^2}\sigma_1$, $\frac{I}{r_2^2}\sigma_2$, $\frac{I}{r_3^2}\sigma_3$.
+Обратим внимание, что $\frac{\sigma_1}{r_1^2}=\frac{\sigma_2}{r_2^2}=\frac{\sigma_3}{r_3^2}=\omega$.
+Таким образом, \textbf{поток} - физическая величина пропорциональная световой мощности,
+переносимой пучком лучей, распространяющимися внутри телесного угла $\omega$.
+\[\Phi:=I\omega\]
+Световой поток, выходящий из телесного угла 1ср, с силой света 1кд называется \textit{люмен} (лм, lm).
+
+Обратим внимание, что в качестве источника света здесь рассматривается вершина телесного угла, то есть
+точка в пространстве, но в жизни же источники света не только не могут быть точкой, но и могут
+достигать весьма больших размеров. Всегда стоит помнить, что если речь идет об источнике света
+как о точке, то подразумевается, что расстояние между освещаемым объектом во много раз
+превышает размер источника и, в следствие различные лучи источника попадают в достаточно малый телесный угол.
+
+\subsection{Освещенность (Irradiance)}
+
+Зафиксируем точечный источник света $S_0$ с силой света $I$ на расстоянии $r$ от поверхности площадью $\sigma$.
+\begin{figure}[h]
+  \begin{center}
+    \begin{tikzpicture}
+      \node [circle,
+        draw=black,
+        scale=0.4,
+        label=left:$S_0$] (S0) at (0,0) {};
+      \coordinate (S0) at (S0);
+
+      \coordinate (Au) at (7,1);
+      \coordinate (Al) at (7,-1);
+      \draw (Au) -- node[right]{$\sigma$} (Al);
+      \draw (Au) -- (S0) -- (Al);
+      \draw [-{Stealth[scale=2]}] (S0) -- node[above]{$r$} ($(Au)!0.5!(Al)$);
+    \end{tikzpicture}
+    \caption{Лучи $S_0$, падающие по нормали к поверхности}
+  \end{center}
+\end{figure}
+
+Величина
+\begin{equation}\label{irradiance}
+  E:=\frac{I}{r^2}
+\end{equation}
+
+является мерой освещения, получающегося на поверхности при падении лучей под прямым углом.
+
+За единицу освещенности принимается такая освещенность, которую создает
+источник силой света в 1 кд, освещающий по нормали поверхность,
+отстояющую от него на расстояние 1 м. Единица освещенности — люкс (лк, lx).
+
+Проводя аналогии с физическими величинами, можно сравнить освещенность с плотностью потока.
+Действительно, домножив числитель и знаменатель \eqref{irradiance} на бесконечно малый телесный
+угол $\d\omega$, получим следующее
+
+\[E=\frac{I\d\omega}{r^2\d\omega}=\frac{\d\Phi}{\d\sigma}\]
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{tikzpicture}
+      \node [circle,
+        draw=black,
+        scale=0.4,
+        label=left:$S_0$] (S0) at (0,0) {};
+      \coordinate (S0) at (S0);
+
+      \coordinate (Au) at (7,1);
+      \coordinate (Al) at (9,-1);
+      \coordinate (Am) at ($(Au)!0.5!(Al)$);
+      \path let \p1=($ (Au) - (Al) $) in node (N) at ([shift={(-\y1,\x1)}]Am){$N$};
+      \draw (Au) -- node[right,scale=1.5]{$\frac{\sigma}{\cos\phi}$} (Al);
+      \draw (Au) -- (S0) -- (Al);
+      \draw [-{Stealth[scale=2]}] (S0) -- node[above]{$r$} (Am);
+      \draw [-{Stealth[scale=2]}] (Am) -- (N);
+      \pic [draw, angle radius=20mm,"$\phi$",left] {angle=S0--Am--N};
+    \end{tikzpicture}
+    \caption{Лучи $S_0$, падающие под углом $\phi$}
+    \label{irradiance_under_angle}
+  \end{center}
+\end{figure}
+
+В случае, когда лучи источника падают под углом $\phi$ к нормали на Рис. \eqref{irradiance_under_angle}, сила светового
+потока распределяется по увеличнной площади, в следствие чего освещенность поверхности
+оказывается меньше:
+
+\begin{equation}
+  E=\frac{\d\Phi}{\d\sigma/\cos\phi}=\frac{I}{r^2}\cos\phi
+\end{equation}
+
+\subsection{Энергетическая яркость (Radiance)}
+
+На рисунке \eqref{radiance_pic} в качестве источника рассматривается бесконечно
+малая площадь поверхности $\d\sigma_1$, в качестве получателя рассматривается бесконечно
+малая площадь поверхности $\d\sigma_2$, расстояние между ними конечно и равно $r$.
+Пусть нормаль $\norm_1$ поверхности $\d\sigma_1$ образует с пучком света угол $\phi_1$,
+нормаль $\norm_2$ соответсвенно $\phi_2$.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{tikzpicture}
+      \tikzstyle{trapezium template}=[trapezium, draw, minimum width=3cm, trapezium left angle=120, trapezium right angle=60, scale=0.5]
+
+      \node [trapezium template, rotate=30] (L) at (0, 0){};
+      \node [trapezium template, rotate=-30] (R) at (7, 0){};
+      \node [draw=black,circle,scale=0.3] (Lc) at (L.center){};
+      \node [draw=black,circle,scale=0.3] (Rc) at (R.center){};
+
+      \draw [-{Stealth[scale=2]}] (Lc) -- node[above]{$r$} (Rc);
+
+      \path let \p1=($ (L.north) - (L.south) $) in node (LN) at ([shift={(1.5,1.5)}]Lc){$\norm_1$};
+      \draw [->] (Lc) -- (LN);
+      \pic [draw, angle radius=12mm,"$\phi_1$"] {angle=Rc--Lc--LN};
+
+      \path let \p1=($ (R.north) - (R.south) $) in node (RN) at ([shift={(-1.5,-1.5)}]Rc){$\norm_2$};
+      \draw [->] (Rc) -- (RN);
+      \pic [draw, angle radius=12mm,"$\phi_2$"] {angle=Lc--Rc--RN};
+
+    \end{tikzpicture}
+    \caption{Световой поток пластинки $\d\sigma_1$ на $\d\sigma_2$}
+    \label{radiance_pic}
+  \end{center}
+\end{figure}
+
+По определению световой поток должен быть пропорционален площадям
+проекций каждой из площадок $\d\sigma_1$ и $\d\sigma_2$ на плоскость,
+перпендикулярную направлению падающего пучка, и обратно пропорционален квадрату
+расстояния между ними. Его можно представить в следующей форме
+
+\begin{equation}\label{radiance::origin}
+  \d^2\Phi=L\frac{\d\sigma_1\cos\phi_1\d\sigma_2\cos\phi_2}{r^2}
+\end{equation}
+
+Коэффициент пропорциональности $L$
+называется \textbf{яркостью} излучающего элемента $\d\sigma_1$ в направлении
+к освещаемому элементу $\d\sigma_2$.
+
+Рассмотрим выражение \eqref{radiance::origin} иначе. Возьмем за источник $\d\sigma_1$ с силой $\d I$,
+тогда световой поток, падающий на пластинку $\d\sigma_2$, можно представить следующим образом:
+\begin{equation}\label{radiance::flux_on_receiver}
+  \d^2\Phi=\d E_2\d\sigma_2=\frac{\d I}{r^2}\cos\phi_2\d\sigma_2
+\end{equation}
+Из \eqref{radiance::origin} и \eqref{radiance::flux_on_receiver} следует
+\begin{equation}\label{radiance::result}
+  L = \frac{\d I}{\d\sigma_1\cos\phi_1}
+\end{equation}
+
+Выражение \eqref{radiance::result} определяет \textit{яркость поверхности в заданной точке
+  и в заданном направлении}. Единица яркости -- кандела на квадратный метр (кд/м$^2$).
