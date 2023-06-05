@@ -125,90 +125,32 @@
 \section{Photometric stereo}
 
 % Photometric stereo -- способ восстановить трехмерную форму объекта
-% используя 
+% используя
 
 \subsection{Постановка задачи}
 
-% \begin{figure}[h]
-%   \begin{center}
-%     \begin{tikzpicture}
-%       \tikzstyle{lighter body}=[
-%       draw=black
-%       , fill=yellow
-%       , rectangle
-%       , minimum width=1cm
-%       , minimum height=0.5cm
-%       ];
-%       \tikzset{lighter head/.code={
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}
+    \path (-5,5) pic[rotate=310,transform shape] (A) {lighter} node[right]{Источник 1};
+    \path (2,6) pic[rotate=250,transform shape] (B) {lighter} node[right]{Источник 2};
+    \path (4,3) pic[rotate=220,transform shape] (C) {lighter} node[right]{Источник 3};
+    \path (0,7) pic[rotate=180,transform shape] {camera} node[above]{Камера};
 
-%       }};
-%       \node [lighter body, rotate=50] (SndrRect) at (-5, 4){};
-%       \filldraw[fill=yellow] let
-%       \p1=($ (SndrRect.north west) - (SndrRect.north east) $),
-%       \n2={0.3}
-%       in
-%       ($ (SndrRect.north east)!.5!(SndrRect.north) $) coordinate (SndrA) --
-%       ($ (SndrRect.north)!.5!(SndrRect.north west) $) coordinate (SndrB) --
-%       ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north west) coordinate (SndrC) --
-%       ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north east) coordinate (SndrD) -- cycle
-%       ;
+    \filldraw[pattern=north east lines] let \n1 = {(1cm)+rand*(2)} in
+    +(0:\n1)
+    \foreach \a in {10,20,...,350} {
+    let \n1 = {(1cm)+rand*(2)} in
+    -- +(\a:\n1) coordinate (Shape\a)
+    } -- cycle node[right]{3D объект};
 
-%       \node [draw,
-%         fill=\SndrColor,
-%         rectangle,
-%         minimum width=1cm,
-%         minimum height=0.5cm,
-%         rotate=\SndrAngle,
-%       ] (SndrRect) at (-5, 4){};
-%       \filldraw[fill=\SndrColor] let
-%       \p1=($ (SndrRect.north west) - (SndrRect.north east) $),
-%       \n2={0.3}
-%       in
-%       ($ (SndrRect.north east)!.5!(SndrRect.north) $) coordinate (SndrA) --
-%       ($ (SndrRect.north)!.5!(SndrRect.north west) $) coordinate (SndrB) --
-%       ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north west) coordinate (SndrC) --
-%       ([shift={(\y1*\n2,-\x1*\n2)}]SndrRect.north east) coordinate (SndrD) -- cycle
-%       ;
+    \draw[dashed,color=yellow] (A-head) -- (Shape130);
+    \draw[dashed,color=yellow] (B-head) -- (Shape80);
+    \draw[dashed,color=yellow] (C-head) -- (Shape40);
 
-%       \def\RcvrColor {gray};
-%       \node [draw,
-%         fill=\RcvrColor,
-%         rectangle,
-%         minimum width=1cm,
-%         minimum height=0.5cm,
-%         rotate=180,
-%       ] (RcvrRect) at (0, 5){};
-%       \filldraw[fill=\RcvrColor] let
-%       \p1=($ (RcvrRect.north west) - (RcvrRect.north east) $),
-%       \n2={0.3}
-%       in
-%       ($ (RcvrRect.north east)!.5!(RcvrRect.north) $) coordinate (RcvrA)
-%       -- ($ (RcvrRect.north)!.5!(RcvrRect.north west) $) coordinate (RcvrB)
-%       -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north west) coordinate (RcvrC)
-%       -- ([shift={(\y1*\n2,-\x1*\n2)}]RcvrRect.north east) coordinate (RcvrD)
-%       -- cycle
-%       ;
-
-%       \node [draw,
-%         trapezium,
-%         shade,
-%         minimum width=3cm,
-%         trapezium left angle=120,
-%         trapezium right angle=60] (Srfc) at (0, 0){};
-
-%       \draw[dashed,color=\SndrColor,line width=0.5mm]
-%       ($ (SndrC)!.5!(SndrD) $) coordinate (beginSnd)
-%       -- (Srfc.center) coordinate (endSnd);
-
-%       \draw[dashed,color=\RcvrColor,line width=0.5mm]
-%       (Srfc.center) coordinate (beginRcv)
-%       -- ($ (RcvrC)!.5!(RcvrD) $) coordinate (endRcv);
-
-%     \end{tikzpicture}
-%     \caption{Отражение поверхности}
-%     \label{problem}
-%   \end{center}
-% \end{figure}
+  \end{tikzpicture}
+  \caption{Постановка задачи}
+\end{figure}
 
 \subsection{Восстановление нормалей}
 \subsection{Восстановление поверхности из нормалей}
