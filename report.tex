@@ -32,6 +32,10 @@
             bottom=2cm,
             bindingoffset=0cm]{geometry}
 
+%Coding-specific packages
+%--------------------------------------
+\usepackage{algpseudocode}
+
 %Graphics packages
 %--------------------------------------
 \usepackage{graphicx}
@@ -44,6 +48,7 @@
   , tex/introduction
   , tex/radiometry
   , tex/surfaces
+  , tex/photometric_stereo
 }
 
 \usepackage{tikz}
@@ -122,39 +127,9 @@
 
 \newpage
 
-\section{Photometric stereo}
+\include{tex/photometric_stereo}
 
-% Photometric stereo -- способ восстановить трехмерную форму объекта
-% используя
-
-\subsection{Постановка задачи}
-
-\begin{figure}[h]
-  \centering
-  \begin{tikzpicture}
-    \path (-5,5) pic[rotate=310,transform shape] (A) {lighter} node[right]{Источник 1};
-    \path (2,6) pic[rotate=250,transform shape] (B) {lighter} node[right]{Источник 2};
-    \path (4,3) pic[rotate=220,transform shape] (C) {lighter} node[right]{Источник 3};
-    \path (0,7) pic[rotate=180,transform shape] {camera} node[above]{Камера};
-
-    \filldraw[pattern=north east lines] let \n1 = {(1cm)+rand*(2)} in
-    +(0:\n1)
-    \foreach \a in {10,20,...,350} {
-    let \n1 = {(1cm)+rand*(2)} in
-    -- +(\a:\n1) coordinate (Shape\a)
-    } -- cycle node[right]{3D объект};
-
-    \draw[dashed,color=yellow] (A-head) -- (Shape130);
-    \draw[dashed,color=yellow] (B-head) -- (Shape80);
-    \draw[dashed,color=yellow] (C-head) -- (Shape40);
-
-  \end{tikzpicture}
-  \caption{Постановка задачи}
-\end{figure}
-
-\subsection{Восстановление нормалей}
-\subsection{Восстановление поверхности из нормалей}
-\subsection{Проблемы, возможные решения}
+\newpage
 
 \section{Литература}
 \begin{enumerate}
@@ -162,5 +137,6 @@
   \item Ying Wu. "Radiometry, BRDF and Photometric Stereo". Northwestern University. Retrieved 2015-03-25.
   \item A. V. Arecchi, T. Messadi, and R. J. Koshel, Field Guide to Illumination, SPIE Press, Bellingham, WA (2007)
   \item Woodham, R.J. 1980. Photometric method for determining surface orientation from multiple images. Optical Engineerings 19, I, 139-144.
+  \item R. T. Frankot and R. Chellappa, “A method for enforcing integrability in shape from shading algorithms,” IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 10, no. 4, pp. 439–451, July 1988
 \end{enumerate}
 \end{document}
