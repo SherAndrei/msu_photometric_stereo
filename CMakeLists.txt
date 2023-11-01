@@ -4,7 +4,10 @@ PROJECT(PhotometricStereo)
 # required packages
 FIND_PACKAGE(OpenCV REQUIRED)
 FIND_PACKAGE(VTK REQUIRED)
-FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS
+  program_options
+  filesystem
+REQUIRED)
 
 #required macros and variables
 INCLUDE(${VTK_USE_FILE})

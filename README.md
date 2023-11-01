@@ -12,10 +12,38 @@ The light directions are estimated with the chrome dataset inside the image fold
 ### Build
 
 ```bash
-~/$ git clone https://github.com/SherAndrei/msu_lcs
-~/$ mkdir build && cd build
-~/build$ cmake ..
-~/build$ cmake --build .
+~$ git clone https://github.com/SherAndrei/msu_photometric_stereo && cd msu_photometric_stereo/
+~/msu_photometric_stereo$ mkdir build && cd build
+~/msu_photometric_stereo/build$ cmake ..
+~/msu_photometric_stereo/build$ cmake --build .
+```
+
+### Run
+
+Seek help:
+```bash
+~/msu_photometric_stereo$ ./build/PhotometricStereo -h
+USAGE:	./build/PhotometricStereo [OPTIONS]
+OPTIONS:
+  -h [ --help ]            produce this help message
+  -c [ --calibration ] arg Path to a directory with calibration sphere images.
+                           Names of image files should be specified, so for given `image_name` the next code is valid:
+                           ```c
+                            char name[256]; unsigned number; char extention[10];
+                            assert(sscanf(image_name, "%s.%u.%s", name, &number, extention) == 3);
+                           ```
+                           Among the images there should be an image with name, which contains `.mask.` instead of a number of the image.
+                           This image should contain mask of the object, so that the program could differentiate where the desired object is.
+                           
+  -m [ --model ] arg       Path to a directory with model images.
+                           Requirements are the same as for calibration images.
+                           Amount of model images must be exact as the amount of calibration images.
+                           Each calibration image must correspond with one model image.
+```
+
+Run program for horse from dataset
+```bash
+~/msu_photometric_stereo$ ./build/PhotometricStereo -c dataset/chrome/ -m dataset/horse/
 ```
 
 ### Dependencies

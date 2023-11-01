@@ -1,6 +1,8 @@
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <string>
 #include <numeric>
 
 #include <opencv2/core/core.hpp>
@@ -26,6 +28,7 @@
 #include <vtkTriangle.h>
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 void displayMesh(int width, int height, cv::Mat Z) {
   /* creating visualization pipeline which basically looks like this:
@@ -210,29 +213,53 @@ bool processCommandLineArguments(int argc, char** argv, std::string& calibration
   return true;
 }
 
+struct parseDirectoryResult {
+  boost::filesystem::path mask;
+  std::vector<boost::filesystem::path> images;
+};
+
+parseDirectoryResult parseDirectory(const boost::filesystem::path& directory) {
+  using namespace boost::filesystem;
+  parseDirectoryResult result;
+  for (const auto& entry : boost::make_iterator_range(directory_iterator{ directory }, directory_iterator{})) {
+    if (entry.path().string().find(".mask.") != std::string::npos) {
+      assert(result.mask.empty());
+      result.mask = absolute(entry.path());
+      continue;
+    }
+    result.images.push_back(absolute(entry.path()));
+  }
+  const auto by_name = [](const auto& lhs, const auto& rhs) { return lhs.string() < rhs.string(); };
+  std::sort(result.images.begin(), result.images.end(), by_name);
+  return result;
+}
+
 int main(int argc, char** argv) {
   std::string calibration_path;
   std::string model_path;
   if (!processCommandLineArguments(argc, argv, calibration_path, model_path))
     return 1;
 
-  const int NUM_IMGS = 12;
-  const std::string extention = ".png";
-  const std::string CALIBRATION = calibration_path + "chrome.";
-  const std::string MODEL       = model_path + "buddha.";
+  const auto [calibration_mask_file, calibration_images] = parseDirectory(calibration_path);
+  const auto [model_mask_file, model_images] = parseDirectory(model_path);
+  
+  if (model_images.size() != calibration_images.size())
+    throw std::logic_error("expected equal amount of images in calibration and model directiories");
+
+  const auto NUM_IMGS = model_images.size();
 
   std::vector<cv::Mat> calibImages;
   std::vector<cv::Mat> modelImages;
   cv::Mat Lights(NUM_IMGS, 3, CV_32F);
-  cv::Mat Mask      = cv::imread(CALIBRATION + "mask" + extention, cv::IMREAD_GRAYSCALE);
-  cv::Mat ModelMask = cv::imread(MODEL       + "mask" + extention, cv::IMREAD_GRAYSCALE);
+  auto Mask      = cv::imread(calibration_mask_file.string(), cv::IMREAD_GRAYSCALE);
+  auto ModelMask = cv::imread(model_mask_file.string(), cv::IMREAD_GRAYSCALE);
   if (Mask.data == nullptr || ModelMask.data == nullptr) {
     return -1;
   }
   cv::Rect bb = getBoundingBox(Mask);
-  for (int i = 0; i < NUM_IMGS; i++) {
-    cv::Mat Calib = cv::imread(CALIBRATION + std::to_string(i) + extention, cv::IMREAD_GRAYSCALE);
-    cv::Mat tmp   = cv::imread(MODEL       + std::to_string(i) + extention, cv::IMREAD_GRAYSCALE);
+  for (auto i = 0u; i < NUM_IMGS; i++) {
+    cv::Mat Calib = cv::imread(calibration_images[i].string(), cv::IMREAD_GRAYSCALE);
+    cv::Mat tmp   = cv::imread(model_images[i].string(), cv::IMREAD_GRAYSCALE);
     cv::Mat Model;
     tmp.copyTo(Model, ModelMask);
     cv::Vec3f light = getLightDirFromSphere(Calib, bb);
@@ -255,8 +282,8 @@ int main(int argc, char** argv) {
   /* estimate surface normals and p,q gradients */
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
-      cv::Vec<float, NUM_IMGS> I;
-      for (int i = 0; i < NUM_IMGS; i++) {
+      std::vector<float> I(NUM_IMGS);
+      for (auto i = 0u; i < NUM_IMGS; i++) {
         I[i] = modelImages[i].at<uchar>(cv::Point(x, y));
       }
 
@@ -271,7 +298,7 @@ int main(int argc, char** argv) {
       }
       int legit = 1;
       /* avoid spikes ad edges */
-      for (int i = 0; i < NUM_IMGS; i++) {
+      for (auto i = 0u; i < NUM_IMGS; i++) {
         legit *= modelImages[i].at<uchar>(cv::Point(x, y)) > 0;
       }
       if (legit) {
