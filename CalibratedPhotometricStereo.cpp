@@ -25,9 +25,6 @@
 #include <vtkSmartPointer.h>
 #include <vtkTriangle.h>
 
-using namespace cv;
-using namespace std;
-
 void displayMesh(int width, int height, cv::Mat Z) {
   /* creating visualization pipeline which basically looks like this:
      vtkPoints -> vtkPolyData -> vtkPolyDataMapper -> vtkActor -> vtkRenderer */
@@ -146,54 +143,57 @@ cv::Mat globalHeights(cv::Mat Pgrads, cv::Mat Qgrads) {
   return Z;
 }
 
-cv::Vec3f getLightDirFromSphere(Mat Image, Rect boundingbox) {
+cv::Vec3f getLightDirFromSphere(cv::Mat Image, cv::Rect boundingbox) {
   const int THRESH = 254;
   const float radius = boundingbox.width / 2.0f;
 
-  Mat Binary;
-  threshold(Image, Binary, THRESH, 255, THRESH_BINARY);
-  Mat SubImage(Binary, boundingbox);
+  cv::Mat Binary;
+  cv::threshold(Image, Binary, THRESH, 255, cv::THRESH_BINARY);
+  cv::Mat SubImage(Binary, boundingbox);
 
   /* calculate center of pixels */
-  Moments m = moments(SubImage, false);
-  Point center(m.m10 / m.m00, m.m01 / m.m00);
+  cv::Moments m = cv::moments(SubImage, false);
+  cv::Point center(m.m10 / m.m00, m.m01 / m.m00);
 
   /* x,y are swapped here */
   float x = (center.y - radius) / radius;
   float y = (center.x - radius) / radius;
-  float z = sqrt(1.0 - pow(x, 2.0) - pow(y, 2.0));
+  float z = std::sqrt(1.0 - std::pow(x, 2.0) - std::pow(y, 2.0));
 
-  return Vec3f(x, y, z);
+  return cv::Vec3f(x, y, z);
 }
 
 cv::Rect getBoundingBox(cv::Mat Mask) {
-
   std::vector<std::vector<cv::Point>> v;
-  cv::findContours(Mask.clone(), v, RETR_LIST, CHAIN_APPROX_NONE);
+  cv::findContours(Mask.clone(), v, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
   assert(v.size() > 0);
   return cv::boundingRect(v[0]);
 }
 
 int main() {
-  const int NUM_IMGS = 12;
-  const string CALIBRATION = "./dataset/chrome/chrome.";
-  const string MODEL = "./dataset/gray/gray.";
+  const int NUM_IMGS = 9;
+  const std::string extention = ".jpg";
+  const std::string CALIBRATION = "/home/sher/doc/msu_photometric_stereo/dataset/new/sphere/sphere.";
+  const std::string MODEL       = "/home/sher/doc/msu_photometric_stereo/dataset/new/rock/rock.";
 
-  vector<Mat> calibImages;
-  vector<Mat> modelImages;
-  Mat Lights(NUM_IMGS, 3, CV_32F);
-  Mat Mask = imread(CALIBRATION + "mask.png", IMREAD_GRAYSCALE);
-  Mat ModelMask = imread(MODEL + "mask.png", IMREAD_GRAYSCALE);
-  Rect bb = getBoundingBox(Mask);
-  for (int i = 0; i < NUM_IMGS; i++) {
-    Mat Calib = imread(CALIBRATION + to_string(i) + ".png", IMREAD_GRAYSCALE);
-    Mat tmp = imread(MODEL + to_string(i) + ".png", IMREAD_GRAYSCALE);
+  std::vector<cv::Mat> calibImages;
+  std::vector<cv::Mat> modelImages;
+  cv::Mat Lights(NUM_IMGS, 3, CV_32F);
+  cv::Mat Mask      = cv::imread(CALIBRATION + "mask" + extention, cv::IMREAD_GRAYSCALE);
+  cv::Mat ModelMask = cv::imread(MODEL       + "mask" + extention, cv::IMREAD_GRAYSCALE);
+  if (Mask.data == nullptr || ModelMask.data == nullptr) {
+    return -1;
+  }
+  cv::Rect bb = getBoundingBox(Mask);
+  for (int i = 1; i <= NUM_IMGS; i++) {
+    cv::Mat Calib = cv::imread(CALIBRATION + std::to_string(i) + extention, cv::IMREAD_GRAYSCALE);
+    cv::Mat tmp   = cv::imread(MODEL       + std::to_string(i) + extention, cv::IMREAD_GRAYSCALE);
     cv::Mat Model;
     tmp.copyTo(Model, ModelMask);
-    Vec3f light = getLightDirFromSphere(Calib, bb);
-    Lights.at<float>(i, 0) = light[0];
-    Lights.at<float>(i, 1) = light[1];
-    Lights.at<float>(i, 2) = light[2];
+    cv::Vec3f light = getLightDirFromSphere(Calib, bb);
+    Lights.at<float>(i - 1, 0) = light[0];
+    Lights.at<float>(i - 1, 1) = light[1];
+    Lights.at<float>(i - 1, 2) = light[2];
     calibImages.push_back(Calib);
     modelImages.push_back(Model);
   }
@@ -210,13 +210,13 @@ int main() {
   /* estimate surface normals and p,q gradients */
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
-      Vec<float, NUM_IMGS> I;
+      cv::Vec<float, NUM_IMGS> I;
       for (int i = 0; i < NUM_IMGS; i++) {
-        I[i] = modelImages[i].at<uchar>(Point(x, y));
+        I[i] = modelImages[i].at<uchar>(cv::Point(x, y));
       }
 
       cv::Mat n = LightsInv * cv::Mat(I);
-      float p = sqrt(cv::Mat(n).dot(n));
+      float p = std::sqrt(cv::Mat(n).dot(n));
       if (p > 0) {
         n = n / p;
       }
@@ -227,7 +227,7 @@ int main() {
       int legit = 1;
       /* avoid spikes ad edges */
       for (int i = 0; i < NUM_IMGS; i++) {
-        legit *= modelImages[i].at<uchar>(Point(x, y)) >= 0;
+        legit *= modelImages[i].at<uchar>(cv::Point(x, y)) > 0;
       }
       if (legit) {
         Normals.at<cv::Vec3f>(cv::Point(x, y)) = n;
@@ -245,7 +245,7 @@ int main() {
   }
 
   cv::Mat Normalmap;
-  cv::cvtColor(Normals, Normalmap, COLOR_BGR2RGB);
+  cv::cvtColor(Normals, Normalmap, cv::COLOR_BGR2RGB);
   cv::imshow("Normalmap", Normalmap);
 
   /* global integration of surface normals */

@@ -30,7 +30,6 @@ add_compile_options(
   -Wno-long-long
   -Wcast-qual
   -Wpedantic
-  -Wmissing-declarations
   -Werror=switch
   -Wswitch
 )
