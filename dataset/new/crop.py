@@ -15,7 +15,6 @@ def main(argv):
 
     name = argv[1]
     name_wo_extention, extention = os.path.splitext(name)
-    name_cropped = name_wo_extention + '_cropped' + extention
     img = Image.open(name)
 
     do_crop(img, (250, 450, 650, 800), './camera_lid/' +
