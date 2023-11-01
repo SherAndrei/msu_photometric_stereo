@@ -4,6 +4,7 @@ PROJECT(PhotometricStereo)
 # required packages
 FIND_PACKAGE(OpenCV REQUIRED)
 FIND_PACKAGE(VTK REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
 
 #required macros and variables
 INCLUDE(${VTK_USE_FILE})
@@ -38,4 +39,4 @@ add_compile_options(
 FILE(GLOB SOURCES *.cpp *.h)
 
 ADD_EXECUTABLE(PhotometricStereo ${SOURCES})
-TARGET_LINK_LIBRARIES(PhotometricStereo ${OpenCV_LIBS} ${VTK_LIBRARIES})
+TARGET_LINK_LIBRARIES(PhotometricStereo ${OpenCV_LIBS} ${VTK_LIBRARIES} ${Boost_LIBRARIES})

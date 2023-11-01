@@ -25,6 +25,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkTriangle.h>
 
+#include <boost/program_options.hpp>
+
 void displayMesh(int width, int height, cv::Mat Z) {
   /* creating visualization pipeline which basically looks like this:
      vtkPoints -> vtkPolyData -> vtkPolyDataMapper -> vtkActor -> vtkRenderer */
@@ -170,11 +172,54 @@ cv::Rect getBoundingBox(cv::Mat Mask) {
   return cv::boundingRect(v[0]);
 }
 
-int main() {
-  const int NUM_IMGS = 9;
-  const std::string extention = ".jpg";
-  const std::string CALIBRATION = "/home/sher/doc/msu_photometric_stereo/dataset/new/sphere/sphere.";
-  const std::string MODEL       = "/home/sher/doc/msu_photometric_stereo/dataset/new/rock/rock.";
+bool processCommandLineArguments(int argc, char** argv, std::string& calibration_path, std::string& model_path) {
+	boost::program_options::options_description command_line_options("OPTIONS", 10000);
+	command_line_options.add_options()
+		("help,h", "produce this help message")
+    ("calibration,c", boost::program_options::value<std::string>(&calibration_path)->required(),
+        "Path to a directory with calibration sphere images.\n"
+        "Names of image files should be specified, so for given `image_name` the next code is valid:\n"
+        "\t```c\n"
+        "\t char name[256]; unsigned number; char extention[10];\n"
+        "\t assert(sscanf(image_name, \"%s.%u.%s\", name, &number, extention) == 3);\n"
+        "\t```\n"
+        "Among the images there should be an image with name, which contains `.mask.` instead of a number of the image.\n"
+        "This image should contain mask of the object, so that the program could differentiate where the desired object is.\n")
+    ("model,m",       boost::program_options::value<std::string>(&model_path)->required(),
+        "Path to a directory with model images.\n"
+        "Requirements are the same as for calibration images.\n"
+        "Amount of model images must be exact as the amount of calibration images.\n"
+        "Each calibration image must correspond with one model image.\n")
+		;
+
+	boost::program_options::variables_map var_map;
+	const auto opts = boost::program_options::command_line_parser(argc, argv)
+		.options(command_line_options)
+    .run();
+	boost::program_options::store(opts, var_map);
+
+	if (var_map.count("help")) {
+    std::cout
+      << "USAGE:"
+      << "\t" << argv[0] << " [OPTIONS]\n"
+      << command_line_options << '\n';
+    return false;
+  }
+
+	boost::program_options::notify(var_map);
+  return true;
+}
+
+int main(int argc, char** argv) {
+  std::string calibration_path;
+  std::string model_path;
+  if (!processCommandLineArguments(argc, argv, calibration_path, model_path))
+    return 1;
+
+  const int NUM_IMGS = 12;
+  const std::string extention = ".png";
+  const std::string CALIBRATION = calibration_path + "chrome.";
+  const std::string MODEL       = model_path + "buddha.";
 
   std::vector<cv::Mat> calibImages;
   std::vector<cv::Mat> modelImages;
@@ -185,15 +230,15 @@ int main() {
     return -1;
   }
   cv::Rect bb = getBoundingBox(Mask);
-  for (int i = 1; i <= NUM_IMGS; i++) {
+  for (int i = 0; i < NUM_IMGS; i++) {
     cv::Mat Calib = cv::imread(CALIBRATION + std::to_string(i) + extention, cv::IMREAD_GRAYSCALE);
     cv::Mat tmp   = cv::imread(MODEL       + std::to_string(i) + extention, cv::IMREAD_GRAYSCALE);
     cv::Mat Model;
     tmp.copyTo(Model, ModelMask);
     cv::Vec3f light = getLightDirFromSphere(Calib, bb);
-    Lights.at<float>(i - 1, 0) = light[0];
-    Lights.at<float>(i - 1, 1) = light[1];
-    Lights.at<float>(i - 1, 2) = light[2];
+    Lights.at<float>(i, 0) = light[0];
+    Lights.at<float>(i, 1) = light[1];
+    Lights.at<float>(i, 2) = light[2];
     calibImages.push_back(Calib);
     modelImages.push_back(Model);
   }
