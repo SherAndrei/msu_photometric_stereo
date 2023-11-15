@@ -30,7 +30,7 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
-void displayMesh(int width, int height, cv::Mat Z) {
+void displayMesh(int width, int height, cv::Mat Z, const std::string& filename) {
   /* creating visualization pipeline which basically looks like this:
      vtkPoints -> vtkPolyData -> vtkPolyDataMapper -> vtkActor -> vtkRenderer */
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -102,7 +102,7 @@ void displayMesh(int width, int height, cv::Mat Z) {
   vtkSmartPointer<vtkPLYWriter> plyExporter =
       vtkSmartPointer<vtkPLYWriter>::New();
   plyExporter->SetInputData(polyData);
-  plyExporter->SetFileName("export.ply");
+  plyExporter->SetFileName(filename.c_str());
   plyExporter->SetColorModeToDefault();
   plyExporter->SetArrayName("Colors");
   plyExporter->Update();
@@ -324,7 +324,8 @@ int main(int argc, char** argv) {
   cv::Mat Z = globalHeights(Pgrads, Qgrads);
 
   /* display reconstruction */
-  displayMesh(Pgrads.cols, Pgrads.rows, Z);
+  const auto reconstruction_output = boost::filesystem::path{ model_path } / "reconstruction.ply";
+  displayMesh(Pgrads.cols, Pgrads.rows, Z, reconstruction_output.string());
 
   cv::waitKey();
   return 0;
