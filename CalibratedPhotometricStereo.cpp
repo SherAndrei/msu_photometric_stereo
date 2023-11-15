@@ -309,23 +309,12 @@ int main(int argc, char** argv) {
       if (std::abs(n.at<float>(2, 0)) < std::numeric_limits<float>::epsilon()) {
         n.at<float>(2, 0) = 1.0;
       }
-      int legit = 1;
-      /* avoid spikes ad edges */
-      for (auto i = 0u; i < NUM_IMGS; i++) {
-        legit *= modelImages[i].at<uchar>(cv::Point(x, y)) > 0;
-      }
-      if (legit) {
-        Normals.at<cv::Vec3f>(cv::Point(x, y)) = n;
-        Pgrads.at<float>(cv::Point(x, y)) =
-            n.at<float>(0, 0) / n.at<float>(2, 0);
-        Qgrads.at<float>(cv::Point(x, y)) =
-            n.at<float>(1, 0) / n.at<float>(2, 0);
-      } else {
-        cv::Vec3f nullvec(0.0f, 0.0f, 1.0f);
-        Normals.at<cv::Vec3f>(cv::Point(x, y)) = nullvec;
-        Pgrads.at<float>(cv::Point(x, y)) = 0.0f;
-        Qgrads.at<float>(cv::Point(x, y)) = 0.0f;
-      }
+
+      Normals.at<cv::Vec3f>(cv::Point(x, y)) = n;
+      Pgrads.at<float>(cv::Point(x, y)) =
+          n.at<float>(0, 0) / n.at<float>(2, 0);
+      Qgrads.at<float>(cv::Point(x, y)) =
+          n.at<float>(1, 0) / n.at<float>(2, 0);
     }
   }
 
