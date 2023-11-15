@@ -183,13 +183,11 @@ bool processCommandLineArguments(int argc, char** argv, std::string& calibration
 		("help,h", "produce this help message")
     ("calibration,c", boost::program_options::value<std::string>(&calibration_path)->required(),
         "Path to a directory with calibration sphere images.\n"
-        "Names of image files should be specified, so for given `image_name` the next code is valid:\n"
-        "\t```c\n"
-        "\t char name[256]; unsigned number; char extention[10];\n"
-        "\t assert(sscanf(image_name, \"%s.%u.%s\", name, &number, extention) == 3);\n"
-        "\t```\n"
-        "Among the images there should be an image with name, which contains `.mask.` instead of a number of the image.\n"
-        "This image should contain mask of the object, so that the program could differentiate where the desired object is.\n")
+        "Names of images should satisfy next requirement:\n"
+        "for given name `name` image name must next string `name.%u.ext`, where `ext` is your image extention.\n"
+        "Among the images there should be an image with name, which contains substring `.mask.` instead of a `number` of the image.\n"
+        "This image should contain mask of the object, so that the program could differentiate where the desired object is placed on the image.\n"
+        "Images or files, which names does not satisfy this requirement are ignored.\n")
     ("model,m",       boost::program_options::value<std::string>(&model_path)->required(),
         "Path to a directory with model images.\n"
         "Requirements are the same as for calibration images.\n"
@@ -224,12 +222,23 @@ parseDirectoryResult parseDirectory(const boost::filesystem::path& directory) {
   using namespace boost::filesystem;
   parseDirectoryResult result;
   for (const auto& entry : boost::make_iterator_range(directory_iterator{ directory }, directory_iterator{})) {
-    if (entry.path().string().find(".mask.") != std::string::npos) {
-      assert(result.mask.empty());
+    const auto image_path = absolute(entry.path());
+    const auto image_name_without_extention = image_path.stem().string();
+    const auto dot_pos = image_name_without_extention.find('.');
+    if (dot_pos == std::string::npos)
+      continue;
+    const auto after_dot = image_name_without_extention.substr(dot_pos + 1);
+    if (after_dot == "mask") {
+      if (!result.mask.empty())
+        throw std::logic_error("found several masks in directory " + directory.string());
       result.mask = absolute(entry.path());
       continue;
     }
-    result.images.push_back(absolute(entry.path()));
+    unsigned pos;
+    if (std::sscanf(after_dot.c_str(), "%u", &pos) != 1)
+      continue;
+
+    result.images.push_back(image_path);
   }
   const auto by_name = [](const auto& lhs, const auto& rhs) { return lhs.string() < rhs.string(); };
   std::sort(result.images.begin(), result.images.end(), by_name);
@@ -243,10 +252,21 @@ int main(int argc, char** argv) {
     return 1;
 
   const auto [calibration_mask_file, calibration_images] = parseDirectory(calibration_path);
+  if (calibration_images.empty()) {
+    std::cerr << "error: no calibration images which satisfy requirement were found, abort";
+    return 1;
+  }
+
   const auto [model_mask_file, model_images] = parseDirectory(model_path);
-  
-  if (model_images.size() != calibration_images.size())
-    throw std::logic_error("expected equal amount of images in calibration and model directiories");
+  if (model_images.empty()) {
+    std::cerr << "error: no model images which satisfy requirement were found, abort";
+    return 1;
+  }
+
+  if (model_images.size() != calibration_images.size()) {
+    std::cerr << "error: expected equal amount of images in calibration and model directiories, abort";
+    return 1;
+  }
 
   const auto NUM_IMGS = model_images.size();
 
