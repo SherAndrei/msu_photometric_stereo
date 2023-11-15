@@ -197,27 +197,38 @@ struct parseDirectoryResult {
 parseDirectoryResult parseDirectory(const boost::filesystem::path& directory) {
   using namespace boost::filesystem;
   parseDirectoryResult result;
+  const auto substr_between_dots = [](const path& path) -> std::string {
+    const auto name_without_extention = path.stem().string();
+    const auto dot_pos = name_without_extention.find('.');
+    if (dot_pos == std::string::npos)
+      return {};
+    return name_without_extention.substr(dot_pos + 1);
+  };
+  const auto extract_number = [](const std::string& s) -> size_t {
+    size_t pos;
+    if (std::sscanf(s.c_str(), "%lu", &pos) != 1)
+      return std::string::npos;
+    return pos;
+  };
   for (const auto& entry : boost::make_iterator_range(directory_iterator{ directory }, directory_iterator{})) {
     const auto image_path = absolute(entry.path());
-    const auto image_name_without_extention = image_path.stem().string();
-    const auto dot_pos = image_name_without_extention.find('.');
-    if (dot_pos == std::string::npos)
-      continue;
-    const auto after_dot = image_name_without_extention.substr(dot_pos + 1);
+    const auto after_dot = substr_between_dots(image_path);
     if (after_dot == "mask") {
       if (!result.mask.empty())
         throw std::logic_error("found several masks in directory " + directory.string());
       result.mask = absolute(entry.path());
       continue;
     }
-    unsigned pos;
-    if (std::sscanf(after_dot.c_str(), "%u", &pos) != 1)
+
+    if (extract_number(after_dot) == std::string::npos)
       continue;
 
     result.images.push_back(image_path);
   }
-  const auto by_name = [](const auto& lhs, const auto& rhs) { return lhs.string() < rhs.string(); };
-  std::sort(result.images.begin(), result.images.end(), by_name);
+  const auto by_image_number = [&](const auto& lhs, const auto& rhs) {
+    return extract_number(substr_between_dots(lhs)) < extract_number(substr_between_dots(rhs));
+  };
+  std::sort(result.images.begin(), result.images.end(), by_image_number);
   std::cout << "found " << result.images.size() << " images in "  << directory << ":\n";
   for (const auto& image : result.images) {
     std::cout << "\t" << image << "\n";
