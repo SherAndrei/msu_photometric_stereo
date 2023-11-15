@@ -242,6 +242,10 @@ parseDirectoryResult parseDirectory(const boost::filesystem::path& directory) {
   }
   const auto by_name = [](const auto& lhs, const auto& rhs) { return lhs.string() < rhs.string(); };
   std::sort(result.images.begin(), result.images.end(), by_name);
+  std::cout << "found " << result.images.size() << " images in "  << directory << ":\n";
+  for (const auto& image : result.images) {
+    std::cout << "\t" << image << "\n";
+  }
   return result;
 }
 
