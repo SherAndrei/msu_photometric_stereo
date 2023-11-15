@@ -3,6 +3,8 @@ tmp/
 .vscode/
 build/
 *.png
+*.jpg
+*.ply
 
 *.txt
 !CMakeLists.txt
