@@ -172,7 +172,9 @@ cv::Rect getBoundingBox(cv::Mat Mask) {
   std::vector<std::vector<cv::Point>> v;
   cv::findContours(Mask.clone(), v, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
   assert(v.size() > 0);
-  return cv::boundingRect(v[0]);
+  const auto by_size = [](const auto& l, const auto& r) { return l.size() < r.size(); };
+  const auto largest_contour = std::max_element(v.begin(), v.end(), by_size);
+  return cv::boundingRect(*largest_contour);
 }
 
 bool processCommandLineArguments(int argc, char** argv, std::string& calibration_path, std::string& model_path) {
