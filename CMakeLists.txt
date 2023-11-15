@@ -41,5 +41,5 @@ add_compile_options(
 # add all sources automagically
 FILE(GLOB SOURCES *.cpp *.h)
 
-ADD_EXECUTABLE(PhotometricStereo ${SOURCES})
-TARGET_LINK_LIBRARIES(PhotometricStereo ${OpenCV_LIBS} ${VTK_LIBRARIES} ${Boost_LIBRARIES})
+ADD_EXECUTABLE(CalibratedPhotometricStereo ${SOURCES})
+TARGET_LINK_LIBRARIES(CalibratedPhotometricStereo ${OpenCV_LIBS} ${VTK_LIBRARIES} ${Boost_LIBRARIES})
