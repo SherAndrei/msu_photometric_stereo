@@ -344,7 +344,10 @@ int main(int argc, char** argv) {
 
   cv::Mat Normalmap;
   cv::cvtColor(Normals, Normalmap, cv::COLOR_BGR2RGB);
-  cv::imshow("Normalmap", Normalmap);
+  const auto normal_map_output = boost::filesystem::path{ model_path } / std::string{ "normal" + model_images[0].extension().string() };
+  // The `cv::imwrite(...)` function cannot handle images stored with float values in the range [0, 1]
+  // See https://stackoverflow.com/a/54165573/15751315.
+  cv::imwrite(normal_map_output.string(), 255 * Normalmap);
 
   /* global integration of surface normals */
   cv::Mat Z = globalHeights(Pgrads, Qgrads);
@@ -353,6 +356,5 @@ int main(int argc, char** argv) {
   const auto reconstruction_output = boost::filesystem::path{ model_path } / "reconstruction.ply";
   displayMesh(Pgrads.cols, Pgrads.rows, Z, reconstruction_output.string());
 
-  cv::waitKey();
   return 0;
 }
