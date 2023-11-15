@@ -38,7 +38,6 @@ void displayMesh(int width, int height, cv::Mat Z, const std::string& filename) 
   vtkSmartPointer<vtkPolyDataMapper> modelMapper =
       vtkSmartPointer<vtkPolyDataMapper>::New();
   vtkSmartPointer<vtkActor> modelActor = vtkSmartPointer<vtkActor>::New();
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkCellArray> vtkTriangles =
       vtkSmartPointer<vtkCellArray>::New();
 
@@ -67,22 +66,8 @@ void displayMesh(int width, int height, cv::Mat Z, const std::string& filename) 
   polyData->SetPoints(points);
   polyData->SetPolys(vtkTriangles);
 
-  /* create two lights */
-  vtkSmartPointer<vtkLight> light1 = vtkSmartPointer<vtkLight>::New();
-  light1->SetPosition(-1, 1, 1);
-  renderer->AddLight(light1);
-  vtkSmartPointer<vtkLight> light2 = vtkSmartPointer<vtkLight>::New();
-  light2->SetPosition(1, -1, -1);
-  renderer->AddLight(light2);
-
   /* meshlab-ish background */
   modelMapper->SetInputData(polyData);
-  renderer->SetBackground(.45, .45, .9);
-  renderer->SetBackground2(.0, .0, .0);
-  renderer->GradientBackgroundOn();
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-      vtkSmartPointer<vtkRenderWindow>::New();
-  renderWindow->AddRenderer(renderer);
   modelActor->SetMapper(modelMapper);
 
   /* setting some properties to make it look just right */
@@ -93,11 +78,6 @@ void displayMesh(int width, int height, cv::Mat Z, const std::string& filename) 
   modelActor->GetProperty()->SetSpecular(0.8);
   modelActor->GetProperty()->SetSpecularPower(8.0);
 
-  renderer->AddActor(modelActor);
-  vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-      vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  interactor->SetRenderWindow(renderWindow);
-
   /* export mesh */
   vtkSmartPointer<vtkPLYWriter> plyExporter =
       vtkSmartPointer<vtkPLYWriter>::New();
@@ -107,10 +87,6 @@ void displayMesh(int width, int height, cv::Mat Z, const std::string& filename) 
   plyExporter->SetArrayName("Colors");
   plyExporter->Update();
   plyExporter->Write();
-
-  /* render mesh */
-  renderWindow->Render();
-  interactor->Start();
 }
 
 cv::Mat globalHeights(cv::Mat Pgrads, cv::Mat Qgrads) {
