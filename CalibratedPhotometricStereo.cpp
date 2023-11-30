@@ -30,6 +30,8 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
+#include "verify.h"
+
 void displayMesh(int width, int height, cv::Mat Z, const std::string& filename) {
   /* creating visualization pipeline which basically looks like this:
      vtkPoints -> vtkPolyData -> vtkPolyDataMapper -> vtkActor -> vtkRenderer */
@@ -243,21 +245,14 @@ int main(int argc, char** argv) {
     return 1;
 
   const auto [calibration_mask_file, calibration_images] = parseDirectory(calibration_path);
-  if (calibration_images.empty()) {
-    std::cerr << "error: no calibration images which satisfy requirement were found, abort";
-    return 1;
-  }
+  VERIFY_LOG_RETURN(!calibration_images.empty(), "error: no calibration images which satisfy requirement were found, abort", 1);
+  VERIFY_LOG_RETURN(!calibration_mask_file.empty(), "error: no calibration mask was found, abort", 1);
 
   const auto [model_mask_file, model_images] = parseDirectory(model_path);
-  if (model_images.empty()) {
-    std::cerr << "error: no model images which satisfy requirement were found, abort";
-    return 1;
-  }
+  VERIFY_LOG_RETURN(!model_images.empty(), "error: no model images which satisfy requirement were found, abort", 1);
+  VERIFY_LOG_RETURN(!model_mask_file.empty(), "error: no model mask was found, abort", 1);
 
-  if (model_images.size() != calibration_images.size()) {
-    std::cerr << "error: expected equal amount of images in calibration and model directiories, abort";
-    return 1;
-  }
+  VERIFY_LOG_RETURN(model_images.size() == calibration_images.size(), "error: expected equal amount of images in calibration and model directiories, abort", 2);
 
   const auto NUM_IMGS = model_images.size();
 
@@ -265,14 +260,15 @@ int main(int argc, char** argv) {
   std::vector<cv::Mat> modelImages;
   cv::Mat Lights(NUM_IMGS, 3, CV_32F);
   auto Mask      = cv::imread(calibration_mask_file.string(), cv::IMREAD_GRAYSCALE);
+  VERIFY_LOG_RETURN(Mask.data != nullptr, "error: failed to read calibration mask file", 3);
   auto ModelMask = cv::imread(model_mask_file.string(), cv::IMREAD_GRAYSCALE);
-  if (Mask.data == nullptr || ModelMask.data == nullptr) {
-    return -1;
-  }
+  VERIFY_LOG_RETURN(ModelMask.data != nullptr, "error: failed to read model mask file", 3);
   cv::Rect bb = getBoundingBox(Mask);
   for (auto i = 0u; i < NUM_IMGS; i++) {
     cv::Mat Calib = cv::imread(calibration_images[i].string(), cv::IMREAD_GRAYSCALE);
+    VERIFY_LOG_RETURN(Calib.data != nullptr, "error: failed to read calibration file: " << calibration_images[i], 3);
     cv::Mat tmp   = cv::imread(model_images[i].string(), cv::IMREAD_GRAYSCALE);
+    VERIFY_LOG_RETURN(tmp.data != nullptr, "error: failed to read model file: " << model_images[i], 3);
     cv::Mat Model;
     tmp.copyTo(Model, ModelMask);
     cv::Vec3f light = getLightDirFromSphere(Calib, bb);
