@@ -38,8 +38,19 @@ add_compile_options(
   -Wswitch
 )
 
-# add all sources automagically
-FILE(GLOB SOURCES *.cpp *.h)
+ADD_EXECUTABLE(CalibratedPhotometricStereo
+  CalibratedPhotometricStereo.cpp
+)
+TARGET_LINK_LIBRARIES(CalibratedPhotometricStereo
+   ${OpenCV_LIBS}
+   ${VTK_LIBRARIES}
+   ${Boost_LIBRARIES}
+)
 
-ADD_EXECUTABLE(CalibratedPhotometricStereo ${SOURCES})
-TARGET_LINK_LIBRARIES(CalibratedPhotometricStereo ${OpenCV_LIBS} ${VTK_LIBRARIES} ${Boost_LIBRARIES})
+ADD_EXECUTABLE(PrintBoundingBox
+  PrintBoundingBox.cpp
+)
+TARGET_LINK_LIBRARIES(PrintBoundingBox
+  ${OpenCV_LIBS}
+)
+
