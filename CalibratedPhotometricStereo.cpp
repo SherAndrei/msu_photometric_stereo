@@ -107,8 +107,8 @@ cv::Mat globalHeights(cv::Mat Pgrads, cv::Mat Qgrads) {
         float u = sin((float)(i * 2 * CV_PI / Pgrads.rows));
         float v = sin((float)(j * 2 * CV_PI / Pgrads.cols));
 
-        float uv = pow(u, 2) + pow(v, 2);
-        float d = (1.0f + lambda) * uv + mu * pow(uv, 2);
+        float uv = u * u + v * v;
+        float d = (1.0f + lambda) * uv + mu * uv * uv;
         Z.at<cv::Vec2f>(i, j)[0] =
             (u * P.at<cv::Vec2f>(i, j)[1] + v * Q.at<cv::Vec2f>(i, j)[1]) / d;
         Z.at<cv::Vec2f>(i, j)[1] =
@@ -136,12 +136,12 @@ cv::Vec3f getLightDirFromSphere(cv::Mat Image, cv::Rect boundingbox) {
 
   /* calculate center of pixels */
   cv::Moments m = cv::moments(SubImage, false);
-  cv::Point center(m.m10 / m.m00, m.m01 / m.m00);
+  cv::Point2f center(m.m10 / m.m00, m.m01 / m.m00);
 
   /* x,y are swapped here */
   float x = (center.y - radius) / radius;
   float y = (center.x - radius) / radius;
-  float z = std::sqrt(1.0 - std::pow(x, 2.0) - std::pow(y, 2.0));
+  float z = std::sqrt(1.0 - x * x - y * y);
 
   return cv::Vec3f(x, y, z);
 }
@@ -290,8 +290,8 @@ int main(int argc, char** argv) {
     Lights.at<float>(i, 2) = light[2];
   }
 
-  const int height = calibImages[0].rows;
-  const int width = calibImages[0].cols;
+  const int height = modelImages[0].rows;
+  const int width = modelImages[0].cols;
   /* light directions, surface normals, p,q gradients */
   cv::Mat LightsInv;
   cv::invert(Lights, LightsInv, cv::DECOMP_SVD);
