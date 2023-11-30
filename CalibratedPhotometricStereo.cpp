@@ -238,6 +238,19 @@ parseDirectoryResult parseDirectory(const boost::filesystem::path& directory) {
   return result;
 }
 
+std::vector<cv::Mat> saveImagesAccordingToMask(const std::vector<boost::filesystem::path>& images, const cv::Mat& mask)
+{
+  std::vector<cv::Mat> result;
+  for (const auto& image : images) {
+    const auto read_result = cv::imread(image.string(), cv::IMREAD_GRAYSCALE);
+    VERIFY_LOG_RETURN(read_result.data != nullptr, "error: failed to read image from file: " << image, {});
+    cv::Mat result_mat;
+    read_result.copyTo(result_mat, mask);
+    result.emplace_back(std::move(result_mat));
+  }
+  return result;
+}
+
 int main(int argc, char** argv) {
   std::string calibration_path;
   std::string model_path;
@@ -256,27 +269,25 @@ int main(int argc, char** argv) {
 
   const auto NUM_IMGS = model_images.size();
 
-  std::vector<cv::Mat> calibImages;
-  std::vector<cv::Mat> modelImages;
+  auto calibrationMask      = cv::imread(calibration_mask_file.string(), cv::IMREAD_GRAYSCALE);
+  VERIFY_LOG_RETURN(calibrationMask.data != nullptr, "error: failed to read calibration mask file", 3);
+  const auto calibImages = saveImagesAccordingToMask(calibration_images, calibrationMask);
+  if (calibImages.empty())
+    return 3;
+
+  auto modelMask = cv::imread(model_mask_file.string(), cv::IMREAD_GRAYSCALE);
+  VERIFY_LOG_RETURN(modelMask.data != nullptr, "error: failed to read model mask file", 3);
+  auto modelImages = saveImagesAccordingToMask(model_images, modelMask);
+  if (modelImages.empty())
+    return 3;
+
   cv::Mat Lights(NUM_IMGS, 3, CV_32F);
-  auto Mask      = cv::imread(calibration_mask_file.string(), cv::IMREAD_GRAYSCALE);
-  VERIFY_LOG_RETURN(Mask.data != nullptr, "error: failed to read calibration mask file", 3);
-  auto ModelMask = cv::imread(model_mask_file.string(), cv::IMREAD_GRAYSCALE);
-  VERIFY_LOG_RETURN(ModelMask.data != nullptr, "error: failed to read model mask file", 3);
-  cv::Rect bb = getBoundingBox(Mask);
+  cv::Rect bb = getBoundingBox(calibrationMask);
   for (auto i = 0u; i < NUM_IMGS; i++) {
-    cv::Mat Calib = cv::imread(calibration_images[i].string(), cv::IMREAD_GRAYSCALE);
-    VERIFY_LOG_RETURN(Calib.data != nullptr, "error: failed to read calibration file: " << calibration_images[i], 3);
-    cv::Mat tmp   = cv::imread(model_images[i].string(), cv::IMREAD_GRAYSCALE);
-    VERIFY_LOG_RETURN(tmp.data != nullptr, "error: failed to read model file: " << model_images[i], 3);
-    cv::Mat Model;
-    tmp.copyTo(Model, ModelMask);
-    cv::Vec3f light = getLightDirFromSphere(Calib, bb);
+    cv::Vec3f light = getLightDirFromSphere(calibImages[i], bb);
     Lights.at<float>(i, 0) = light[0];
     Lights.at<float>(i, 1) = light[1];
     Lights.at<float>(i, 2) = light[2];
-    calibImages.push_back(Calib);
-    modelImages.push_back(Model);
   }
 
   const int height = calibImages[0].rows;
