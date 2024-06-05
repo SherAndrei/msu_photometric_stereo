@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  do_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+      - name: Compile
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: report.tex
+          latexmk_shell_escape: true
+          extra_system_packages: gnuplot
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: report.pdf

@@ -5,6 +5,7 @@ build/
 *.png
 *.jpg
 *.ply
+*.pdf
 
 *.txt
 !CMakeLists.txt
